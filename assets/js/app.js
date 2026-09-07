@@ -117,7 +117,7 @@
     </div>
     <div class="footer-bottom">
       <span>© 2026 Yatra Kosh · B.Sc. Data Science mini project</span>
-      <span>Behavioural data collected with consent</span>
+      <span><a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · Behavioural data collected with consent</span>
     </div>
   </div>
 </footer>`;
@@ -132,13 +132,28 @@
       const open = list.classList.toggle('open');
       btn.setAttribute('aria-expanded', String(open));
     });
+    mountFloatContact();
+  }
+
+  function mountFloatContact() {
+    const here = (location.pathname.split('/').pop() || 'index.html');
+    if (here === 'contact.html' || here === 'analytics.html') return; // don't duplicate on the contact page itself
+    const a = document.createElement('a');
+    a.href = 'contact.html';
+    a.className = 'float-contact';
+    a.setAttribute('data-track', 'floating contact button');
+    a.setAttribute('aria-label', 'Contact an advisor');
+    a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' +
+      '<span>Talk to an advisor</span>';
+    document.body.appendChild(a);
   }
 
   /* ---------- card renderers ---------- */
   function destCard(d) {
     return `
 <a class="dest reveal" href="destination.html?id=${d.id}" data-hover="destination ${d.name}" data-track="destination card ${d.name}" data-cat="destination">
-  <div class="dest-art" data-photo-q="${esc(d.name)} India travel">${Scene.make(d.scene, d.palette, d.id)}</div>
+  <div class="dest-art" data-photo-dest="${d.id}">${Scene.make(d.scene, d.palette, d.id)}</div>
   <div class="dest-body">
     <h3>${esc(d.name)}</h3>
     <p class="dest-meta">${esc(d.state).toUpperCase()} · ${d.nights} NIGHTS SUGGESTED</p>
@@ -153,10 +168,9 @@
 
   function hotelTicket(h) {
     const am = h.amenities.slice(0, 4).map(a => `<li>${esc(AMENITY_LABELS[a] || a)}</li>`).join('');
-    const hotelQ = `${h.destName} India ${h.amenities.includes('beachfront') ? 'beach resort' : h.amenities.includes('houseboat') ? 'houseboat' : h.amenities.includes('camping') ? 'desert camp' : h.amenities.includes('heritage') ? 'heritage hotel' : 'hotel'}`;
     return `
 <article class="ticket reveal" data-hover="hotel ${h.name}">
-  <div class="ticket-art" data-photo-q="${esc(hotelQ)}">${Scene.make(h.scene, h.palette, h.id)}</div>
+  <div class="ticket-art" data-photo-dest="${h.dest}">${Scene.make(h.scene, h.palette, h.id)}</div>
   <div class="ticket-main">
     <p class="ticket-loc">${esc(h.area)} · ${esc(h.destName)}</p>
     <h3>${esc(h.name)}</h3>
@@ -175,7 +189,7 @@
   function packageCard(p) {
     return `
 <a class="pkg reveal" href="package.html?id=${p.id}" data-hover="package ${p.name}" data-track="package card ${p.name}" data-cat="package">
-  <div class="pkg-art" data-photo-q="${esc(p.destNames[0] || 'India')} India ${esc((p.theme||'').toLowerCase())} travel">
+  <div class="pkg-art" data-photo-dest="${p.dests[0] || ''}">
     ${Scene.make(p.scene, p.palette, p.id)}
     <span class="badge pkg-badge">${esc(p.theme)}</span>
     <span class="pkg-nights">${p.nights} nights</span>
@@ -386,10 +400,12 @@
   /* ---------- real photos (progressive enhancement over the illustrations) ---------- */
   function fillPhotos(root) {
     if (!window.Photos || !Photos.enabled) return;
-    $$('[data-photo-q]', root || document).forEach(el => {
+    $$('[data-photo-dest]', root || document).forEach(el => {
       if (el.dataset.photoFilled) return;
+      const destId = el.dataset.photoDest;
+      if (!destId) return;
       el.dataset.photoFilled = '1';
-      Photos.fillPhoto(el, el.dataset.photoQ);
+      Photos.fillPhoto(el, destId);
     });
   }
   window.App.fillPhotos = fillPhotos;

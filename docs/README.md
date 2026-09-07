@@ -130,29 +130,34 @@ moment the site is deployed.
 
 ### How it works
 
-`assets/js/photos.js` requests a photo from **Picsum** (picsum.photos), a
-keyless hotlinking CDN backed by real Unsplash photographers, chosen for
-reliability over keyword relevance — it can't fetch "a photo of Goa"
-specifically, but it very rarely goes down. Each entity gets a consistent
-photo across visits (the URL is seeded from its own name), so a hotel
-card doesn't reshuffle to a different photo on reload. If a photo ever
+`assets/js/photos.js` fetches the actual lead photo from each real
+destination's **Wikipedia** article via Wikipedia's public REST API — a
+Goa card shows a real photo of Goa, a Manali card shows a real photo of
+Manali, and so on, for all 16 destinations in the catalogue. No key, no
+signup, and Wikipedia's infrastructure is about as reliable as free
+services get.
+
+The 67 hotels and 6 packages are fictional, so there's no real photo of
+"Casa Anjuna Beach Resort" to fetch — every hotel and package card
+instead shows the real photo of the destination it's *in* (every Goa
+hotel shows the real Goa photo, every Rajasthan Royals stop shows the
+real photo of that stop). That's a deliberate choice: a real photo of the
+real place is more honest than an unrelated stock photo. If a photo ever
 fails to load, the illustration underneath is untouched — nothing else on
 the site depends on this working.
 
 ### If photos don't appear after deploying
 
-Check whether the *service itself* is reachable from your network before
+Check whether Wikipedia's API is reachable from your network before
 assuming the code is broken — open this directly in a browser tab:
 ```
-https://picsum.photos/seed/test/400/300
+https://en.wikipedia.org/api/rest_v1/page/summary/Goa
 ```
-If a photo loads there, the site's code is fine and it's worth a hard
-refresh (`Cmd+Shift+R`) — browsers sometimes cache the previous "no
-image" state. If that direct link also doesn't load, the block is on
-your network's end (a content blocker, browser extension, or school/office
-firewall blocking hotlinked images) — try a different network or browser
-to confirm, then note in your report that the illustrations serve as the
-tested fallback in that case, which is the intended behaviour.
+That should return a block of JSON text including an `"originalimage"`
+field with a photo URL in it. If it does, the site's code is fine and
+it's worth a hard refresh (`Cmd+Shift+R`) — browsers sometimes cache the
+previous "no image" state. If that link also fails, the block is on your
+network's end, not the code — try a different network to confirm.
 
 ### Turning it off (if you ever want to)
 
@@ -166,15 +171,48 @@ the illustration immediately, no other changes needed.
 
 ### One thing worth knowing
 
-LoremFlickr sources real Flickr photos matching the tags, not photos
-specifically of Goa or your hotel — it's real, relevant-*ish* photography
-rather than verified on-location shots. Say so in your report if you
-present this: "real, keyword-matched stock photography" is accurate,
-"photos of our actual properties" would not be, since these are fictional
-hotels.
+Every hotel or package card belonging to the same destination shows the
+*identical* photo (there's only one real Goa photo, reused across all
+five Goa hotels). That's expected, not a bug — say so plainly if you
+present this: "a real photo of the destination, shared across its
+listings" is accurate; implying each fictional hotel has its own unique
+photo would not be.
 
 ### What still doesn't use photos
 
 `gallery.html` is deliberately left as pure generated art — it's the
 page that explicitly showcases the illustration system, so real photos
 there would undercut the point of the page.
+
+---
+
+## v2.3 — professional-agency polish
+
+A round of additions aimed specifically at making the site read as a
+genuinely deployed business rather than a coursework demo:
+
+- **Verified photo mapping.** Before shipping, every one of the 16
+  Wikipedia article titles in `assets/js/photos.js` was checked against
+  real search results — including the tricky ones (Coorg → "Kodagu
+  district", Pondicherry → "Puducherry (city)", Havelock → "Havelock
+  Island") that could easily have been wrong and silently shown no photo.
+- **Favicon** (`assets/favicon.svg`) — the same brand mark used in the
+  nav, so the browser tab looks finished rather than showing a generic
+  document icon.
+- **Custom 404 page** (`404.html`) — GitHub Pages serves this
+  automatically for any broken link. On-brand, with a way back to the
+  site, instead of a bare GitHub error page.
+- **Terms of Service and Privacy Policy** (`terms.html`, `privacy.html`)
+  — linked from every page's footer. The privacy policy is written to be
+  genuinely accurate to what `tracking.js` actually does, not boilerplate.
+- **Floating "Talk to an advisor" button** — the familiar quick-contact
+  pattern real travel sites use, present on every page except Contact
+  itself. Links to the contact form rather than a fake external chat
+  number, so it never overpromises a channel the site doesn't have.
+- **Open Graph & Twitter Card meta tags** on all 22 pages — if this link
+  is ever shared (WhatsApp, Slack, LinkedIn), it now shows a proper title
+  and description instead of a bare URL.
+
+None of this touches the tracking layer, the funnels, or the data model
+— it's presentation and completeness only, safe to add at any point in
+the project.
