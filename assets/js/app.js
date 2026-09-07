@@ -138,7 +138,7 @@
   function destCard(d) {
     return `
 <a class="dest reveal" href="destination.html?id=${d.id}" data-hover="destination ${d.name}" data-track="destination card ${d.name}" data-cat="destination">
-  <div class="dest-art">${Scene.make(d.scene, d.palette, d.id)}</div>
+  <div class="dest-art" data-photo-q="${esc(d.name)} India travel">${Scene.make(d.scene, d.palette, d.id)}</div>
   <div class="dest-body">
     <h3>${esc(d.name)}</h3>
     <p class="dest-meta">${esc(d.state).toUpperCase()} · ${d.nights} NIGHTS SUGGESTED</p>
@@ -153,9 +153,10 @@
 
   function hotelTicket(h) {
     const am = h.amenities.slice(0, 4).map(a => `<li>${esc(AMENITY_LABELS[a] || a)}</li>`).join('');
+    const hotelQ = `${h.destName} India ${h.amenities.includes('beachfront') ? 'beach resort' : h.amenities.includes('houseboat') ? 'houseboat' : h.amenities.includes('camping') ? 'desert camp' : h.amenities.includes('heritage') ? 'heritage hotel' : 'hotel'}`;
     return `
 <article class="ticket reveal" data-hover="hotel ${h.name}">
-  <div class="ticket-art">${Scene.make(h.scene, h.palette, h.id)}</div>
+  <div class="ticket-art" data-photo-q="${esc(hotelQ)}">${Scene.make(h.scene, h.palette, h.id)}</div>
   <div class="ticket-main">
     <p class="ticket-loc">${esc(h.area)} · ${esc(h.destName)}</p>
     <h3>${esc(h.name)}</h3>
@@ -174,7 +175,7 @@
   function packageCard(p) {
     return `
 <a class="pkg reveal" href="package.html?id=${p.id}" data-hover="package ${p.name}" data-track="package card ${p.name}" data-cat="package">
-  <div class="pkg-art">
+  <div class="pkg-art" data-photo-q="${esc(p.destNames[0] || 'India')} India ${esc((p.theme||'').toLowerCase())} travel">
     ${Scene.make(p.scene, p.palette, p.id)}
     <span class="badge pkg-badge">${esc(p.theme)}</span>
     <span class="pkg-nights">${p.nights} nights</span>
@@ -382,8 +383,20 @@
   }
   window.App.currentUser = currentUser;
 
+  /* ---------- real photos (progressive enhancement over the illustrations) ---------- */
+  function fillPhotos(root) {
+    if (!window.Photos || !Photos.enabled) return;
+    $$('[data-photo-q]', root || document).forEach(el => {
+      if (el.dataset.photoFilled) return;
+      el.dataset.photoFilled = '1';
+      Photos.fillPhoto(el, el.dataset.photoQ);
+    });
+  }
+  window.App.fillPhotos = fillPhotos;
+
   /* ---------- scroll reveal ---------- */
   function reveals() {
+    fillPhotos();
     const items = $$('.reveal');
     if (!('IntersectionObserver' in window)) { items.forEach(i => i.classList.add('in')); return; }
     const io = new IntersectionObserver(es => es.forEach(e => {

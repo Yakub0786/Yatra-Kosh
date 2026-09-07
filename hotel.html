@@ -21,6 +21,7 @@
 <div id="site-footer"></div>
 
 <script src="assets/js/config.js"></script>
+<script src="assets/js/photos.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/scene.js"></script>
 <script src="assets/js/app.js"></script>
@@ -46,7 +47,7 @@ function pageInit(){
   box.innerHTML = `
   <section class="section" style="padding-top:22px">
     <div class="wrap">
-      <div style="border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-2);aspect-ratio:21/8">${Scene.make(h.scene,h.palette,h.id,'xMidYMax slice')}</div>
+      <div id="hotel-hero-art" style="border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-2);aspect-ratio:21/8;position:relative">${Scene.make(h.scene,h.palette,h.id,'xMidYMax slice')}</div>
       <div class="split-side split-side--right" style="margin-top:32px">
         <div>
           <span class="eyebrow">${esc(h.area)} · ${esc(h.destName)}, ${esc(h.state)}</span>
@@ -116,6 +117,7 @@ function pageInit(){
   $('#rv-form-anchor').innerHTML = App.reviewFormHtml();
   App.wireReviewForm(h.id, drawReviews);
 
+  if(window.Photos) Photos.fillPhoto($('#hotel-hero-art'), h.destName + ' India ' + (h.amenities.includes('beachfront') ? 'beach resort' : h.amenities.includes('heritage') ? 'heritage hotel' : 'hotel'));
   if(window.YK) YK.track('hotel_view', {category:'catalogue', label:h.name, value:h.price});
   App.reveals();
 }

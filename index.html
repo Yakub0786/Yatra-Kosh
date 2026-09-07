@@ -140,7 +140,7 @@
         <li>No booking fee on hotels or packages.</li>
         <li>No fake urgency — we will never say two people are looking at this room.</li>
         <li>No paid placement. Sorting is by rating or price, never by who pays us.</li>
-        <li>No photographs. Every image here is drawn in code, so nothing is retouched.</li>
+        <li>Real photos where we have a key configured, honest illustrations everywhere else — never anything staged.</li>
       </ul>
     </div>
   </div>
@@ -149,6 +149,7 @@
 <div id="site-footer"></div>
 
 <script src="assets/js/config.js"></script>
+<script src="assets/js/photos.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/scene.js"></script>
 <script src="assets/js/app.js"></script>
@@ -157,6 +158,7 @@
 function pageInit(){
   const {$} = App;
   $('#hero-art').innerHTML = Scene.make('mountain','dusk','yatra-hero','xMidYMax slice');
+  if(window.Photos) Photos.fillPhoto($('#hero-art'), 'India Himalayas travel landscape');
   $('#slip-code').textContent = 'REF · ' + Math.random().toString(36).slice(2,8).toUpperCase();
   $('#cin').value  = App.plus(14);
   $('#cout').value = App.plus(18);

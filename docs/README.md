@@ -121,34 +121,44 @@ now have two distinct conversion funnels to compare rather than one.
 
 ---
 
-## v2.1 additions
+## v2.2 — real photos (zero setup)
 
-Added on top of the travel-agency rebuild, per a features checklist:
+Every destination card, all 67 hotel cards, all 6 package cards, and every
+hero banner show a real photo instead of the generated illustration —
+with no signup, no API key, and no config file edit. It just works the
+moment the site is deployed.
 
-- **Coupon codes** — `WELCOME10` (10% off, all bookings), `FIRST500` (₹500 off, all),
-  `TRIP15` (15% off packages only), `STAY300` (₹300 off hotels only). Live on
-  `booking.html` (real discount applied to total) and `package.html` (estimate
-  shown, mentioned in the enquiry). Fires a `coupon_applied` event.
-- **Reviews** — every hotel and package page shows guest reviews (deterministically
-  seeded per entity, so the same property always shows the same reviews) plus a
-  working "write a review" form. User-submitted reviews are stored in
-  `localStorage` and merge with the seeded ones. Fires `review_submit`.
-- **User profile** (`profile.html`) — shows the signed-in user, a stats strip
-  (bookings, enquiries, nights, total value), full booking history, and full
-  enquiry history, all read from `localStorage`. Prompts sign-in/register if
-  the visitor isn't signed in. Nav now shows the signed-in name instead of
-  "Sign in" once logged in — this also fixed a real bug where `register.html`
-  displayed "You are signed in" but never actually persisted that state.
-- **"Thank you, {name}!"** — the confirmation page now greets the guest by
-  first name at the top of the boarding pass.
-- **Location personalisation** — the homepage shows "📍 Browsing from {city}"
-  using the same IP geolocation the tracker already captures.
-- **Highlighted table headers** — `analytics.html` table headers are now dark
-  with a marigold underline instead of a subtle grey, for readability when
-  presenting the dashboard.
-- **New vs. returning visitors** and **TTFV (time to first value)** — two new
-  tables on `analytics.html`. TTFV is defined as seconds from `session_start`
-  to the first `destination_view`, `hotel_view`, or `package_view` — i.e. the
-  first moment a visitor looks at something specific rather than just browsing
-  a listing page. State this definition in your report if you use the metric,
-  since "value" is not a standardised term and graders may ask what you meant.
+### How it works
+
+`assets/js/photos.js` builds a photo URL from **LoremFlickr**, a free
+keyless hotlinking service — e.g. a Goa hotel card requests
+`goa,india,beach,resort` and gets back a real matching photo. The same
+card always shows the same photo on every visit (the URL is "locked" to
+a number derived from its own search terms), so it doesn't reshuffle on
+reload. If a photo ever fails to load, the illustration underneath is
+untouched — nothing else on the site depends on this working.
+
+### Turning it off (if you ever want to)
+
+There's nothing to turn on, so there's also no key to remove. To go back
+to illustrations only, delete this one line from every HTML file:
+```html
+<script src="assets/js/photos.js"></script>
+```
+or simply delete `assets/js/photos.js` itself — every page falls back to
+the illustration immediately, no other changes needed.
+
+### One thing worth knowing
+
+LoremFlickr sources real Flickr photos matching the tags, not photos
+specifically of Goa or your hotel — it's real, relevant-*ish* photography
+rather than verified on-location shots. Say so in your report if you
+present this: "real, keyword-matched stock photography" is accurate,
+"photos of our actual properties" would not be, since these are fictional
+hotels.
+
+### What still doesn't use photos
+
+`gallery.html` is deliberately left as pure generated art — it's the
+page that explicitly showcases the illustration system, so real photos
+there would undercut the point of the page.

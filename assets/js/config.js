@@ -26,4 +26,7 @@ window.TRACK_CONFIG = {
   maxStored: 6000,        // localStorage event cap, oldest dropped first
   lookupGeo: true,        // one ipapi.co call per visitor for country/state/city
   debug: false            // true = log every event to the browser console
+
+  /* Real photos need no setting here — assets/js/photos.js works with
+     zero configuration. Nothing to add, nothing to break. */
 };
