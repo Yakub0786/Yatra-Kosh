@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About · Yatra Kosh</title>
+<meta name="description" content="Who Yatra Kosh is, how packages are planned, and how the behavioural data is handled.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main id="main">
+
+<section class="page-head">
+  <div class="wrap">
+    <span class="eyebrow on-dark">About</span>
+    <h1>A travel agency built to be studied</h1>
+    <p class="lede">Yatra Kosh plans package tours and lists hotels across India — and, at the same time, is a research instrument for a Behavioural Data Analytics and UX course.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap split">
+    <div>
+      <h2>Why it exists</h2>
+      <p>Most people can describe what a good travel site feels like. Very few can prove it. This project sets out to do the second thing: build a real booking and enquiry flow, watch how people move through it, and change the design based on what the numbers say rather than what we assume.</p>
+      <p>Everything on the site is functional. The destinations are real places, the package itineraries are realistic, and both the hotel-booking and trip-enquiry flows run end to end. The properties and advisors are invented, and no money changes hands at any point.</p>
+
+      <h2 style="margin-top:34px">What gets recorded</h2>
+      <p>With your permission, the site logs which pages you open, what you click, how far you scroll, what you search for, how you move through forms, and what kind of device and browser you are on. It also records an approximate city from your IP address.</p>
+      <p>It does not record your name, your email, your password, or anything you type into a booking or enquiry form. Those stay in your browser.</p>
+      <p>You can decline tracking on your first visit and every feature still works. If you change your mind, clearing this site's storage resets the choice.</p>
+    </div>
+    <div class="stack">
+      <div style="border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-2)" id="art"></div>
+      <div class="panel panel-tight">
+        <span class="eyebrow">The build</span>
+        <div class="boarding-row"><span>Front end</span><span>HTML5 · CSS3 · Bootstrap · JS</span></div>
+        <div class="boarding-row"><span>Illustrations</span><span>Generated SVG</span></div>
+        <div class="boarding-row"><span>Tracking</span><span>Custom JS event layer</span></div>
+        <div class="boarding-row"><span>Analysis</span><span>R / Python</span></div>
+        <div class="boarding-row" style="border:none"><span>Dashboard</span><span>Streamlit / R Shiny</span></div>
+      </div>
+      <div class="panel panel-tight">
+        <span class="eyebrow">Data handling</span>
+        <p style="margin:0;font-size:.92rem" class="muted">Collected with informed consent, stored without personal identifiers, used only for coursework, and deleted after the project is assessed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tint">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:30px">
+      <span class="eyebrow">Two ways to travel with us</span>
+      <h2>Self-serve, or fully planned</h2>
+    </div>
+    <div class="grid grid-2">
+      <div class="panel">
+        <span class="badge-outline badge" style="margin-bottom:12px;display:inline-block">Self-serve</span>
+        <h3>Book a hotel yourself</h3>
+        <p class="muted">Browse 67 hotels across 16 destinations, filter by price and rating, and book directly. No advisor involved unless you want one.</p>
+        <a class="btn btn-ghost btn-sm" href="destinations.html" data-track="about browse destinations">Browse destinations</a>
+      </div>
+      <div class="panel">
+        <span class="badge" style="margin-bottom:12px;display:inline-block">Fully planned</span>
+        <h3>Take a package tour</h3>
+        <p class="muted">Six fixed-departure routes with a private car and a named advisor, or start from nothing and have one built around your dates.</p>
+        <a class="btn btn-ink btn-sm" href="packages.html" data-track="about browse packages">See package tours</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--ink">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:36px"><span class="eyebrow on-dark">How the site is judged</span><h2>Four UX principles, and where you can see them</h2></div>
+    <div class="grid grid-4">
+      <div class="panel"><h3>Value</h3><p class="muted" style="font-size:.92rem;margin:0">Honest write-ups, no booking fee, and named inclusions on every package instead of vague "sightseeing as per itinerary" lines.</p></div>
+      <div class="panel"><h3>Usability</h3><p class="muted" style="font-size:.92rem;margin:0">One search box across hotels, destinations and packages; inline form errors that say what to fix; a live price total while you configure a stay or trip.</p></div>
+      <div class="panel"><h3>Adoptability</h3><p class="muted" style="font-size:.92rem;margin:0">You can browse, compare, and reach both the booking form and the enquiry form without an account. Registration asks for six fields, one optional.</p></div>
+      <div class="panel"><h3>Desirability</h3><p class="muted" style="font-size:.92rem;margin:0">Illustrated posters, ticket-shaped stay cards, a day-by-day itinerary timeline for every package, and a boarding-pass confirmation that feels like a real trip.</p></div>
+    </div>
+  </div>
+</section>
+</main>
+<div id="site-footer"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/photos.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/scene.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+
+function pageInit(){
+  App.$('#art').innerHTML = Scene.make('desert','sand','about-art');
+}
+
+</script>
+<script src="assets/js/tracking.js"></script>
+</body>
+</html>
