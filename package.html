@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Package details · Yatra Kosh</title>
+<meta name="description" content="Day-by-day itinerary, inclusions and exclusions for one fixed-departure package tour.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main id="main">
+
+<div class="wrap"><p class="crumb"><a href="index.html">Home</a> / <a href="packages.html">Package Tours</a> / <span id="cr">&hellip;</span></p></div>
+<div id="body"></div>
+</main>
+<div id="site-footer"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/scene.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+
+function pageInit(){
+  const {$, param, esc, inr} = App;
+  const p = PACKAGES.find(x => x.id === param('id'));
+  const box = $('#body');
+
+  if(!p){
+    box.innerHTML = '<div class="wrap section"><div class="empty"><h3>That package is no longer offered</h3>' +
+      '<p class="muted">Routes change with the season. Browse what is currently running.</p>' +
+      '<a class="btn btn-primary" href="packages.html">Browse package tours</a></div></div>';
+    if(window.YK) YK.track('not_found', {category:'error', label:'package ' + param('id')});
+    return;
+  }
+
+  document.title = p.name + ' · Yatra Kosh';
+  $('#cr').textContent = p.name;
+
+  const itin = p.itinerary.map(([label,title,desc]) => `
+    <div class="itin-day">
+      <div class="itin-day-label">${esc(label)}</div>
+      <h4>${esc(title)}</h4>
+      <p>${esc(desc)}</p>
+    </div>`).join('');
+
+  const stayCards = p.dests.map(id => {
+    const d = DESTINATIONS.find(x=>x.id===id);
+    return d ? App.destCard(d) : '';
+  }).join('');
+
+  box.innerHTML = `
+  <section class="section" style="padding-top:26px">
+    <div class="wrap">
+      <div class="split" style="gap:34px">
+        <div>
+          <span class="badge" style="margin-bottom:12px;display:inline-block">${esc(p.theme)}</span>
+          <h1>${esc(p.name)}</h1>
+          <p class="pkg-route" style="margin-bottom:14px">${p.destNames.map(esc).join(' → ')}</p>
+          <p class="lede">${esc(p.tagline)}</p>
+          <p>${esc(p.blurb)}</p>
+          <div class="hero-stats" style="margin-top:6px">
+            <div><b style="color:var(--ink)">${p.nights}</b><span style="color:var(--muted)">Nights</span></div>
+            <div><b style="color:var(--ink)">${esc(p.groupSize)}</b><span style="color:var(--muted)">Group size</span></div>
+            <div><b style="color:var(--ink)">${inr(p.perDay)}</b><span style="color:var(--muted)">Per person, per day</span></div>
+          </div>
+          <p style="margin-top:22px">
+            <a class="btn btn-ink" href="#itinerary" data-track="jump to itinerary ${esc(p.name)}">See the itinerary</a>
+            <a class="btn btn-ghost" href="assets/downloads/yatra-kosh-travel-guide.pdf" download data-track="download guide from package" data-cat="download">Travel guide (PDF)</a>
+          </p>
+        </div>
+        <div style="border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-2);position:relative">
+          ${Scene.make(p.scene, p.palette, p.id)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint" id="itinerary">
+    <div class="wrap split" style="align-items:start">
+      <div>
+        <span class="eyebrow">Day by day</span>
+        <h2>The itinerary</h2>
+        <div class="itin" style="margin-top:26px">${itin}</div>
+      </div>
+      <aside>
+        <div class="panel" style="position:sticky;top:88px">
+          <span class="eyebrow">Per person, land only</span>
+          <p class="ticket-price" style="font-size:2.2rem;text-align:left">${inr(p.price)}<small style="text-align:left">for ${p.nights} nights</small></p>
+          <div class="field" style="margin-top:16px">
+            <label for="dep">Departure date</label>
+            <select id="dep">${p.departs.map(d=>`<option>${esc(d)}</option>`).join('')}</select>
+          </div>
+          <div class="field">
+            <label for="trav">Travellers</label>
+            <select id="trav"><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select>
+          </div>
+          <p class="mono muted" id="p-total" style="font-size:.82rem"></p>
+          <div class="coupon-row">
+            <input type="text" id="pkg-coupon" placeholder="Coupon code">
+            <button class="btn btn-ghost btn-sm" type="button" id="pkg-coupon-apply" data-track="apply package coupon">Apply</button>
+          </div>
+          <p class="coupon-msg" id="pkg-coupon-msg"></p>
+          <a class="btn btn-primary btn-block" id="enquire" href="plan-trip.html?package=${p.id}" data-track="enquire package ${esc(p.name)}" data-cat="conversion">Enquire about this trip</a>
+          <p class="hint center" style="margin:12px 0 0">No payment now. An advisor confirms availability first.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <span class="eyebrow">What is covered</span>
+      <h2>Inclusions &amp; exclusions</h2>
+      <div class="inex-grid" style="margin-top:22px">
+        <div><h4 style="margin-bottom:10px">Included</h4><ul class="inex-list yes">${p.inclusions.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div>
+        <div><h4 style="margin-bottom:10px">Not included</h4><ul class="inex-list no">${p.exclusions.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="wrap">
+      <span class="eyebrow">On this route</span>
+      <h2>Destinations covered</h2>
+      <div class="grid grid-3" style="margin-top:22px">${stayCards}</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap" style="max-width:820px">
+      <span class="eyebrow" id="reviews-count">Traveller reviews</span>
+      <h2>What past travellers said</h2>
+      <div id="reviews-list" style="margin-top:14px"></div>
+      <div id="rv-form-anchor"></div>
+    </div>
+  </section>`;
+
+  let pkgDiscount = 0, pkgCouponCode = '';
+  function total(){
+    const n = parseInt(($('#trav').value||'2').replace('+',''),10);
+    const sub = n*p.price;
+    const afterDiscount = Math.max(0, sub - pkgDiscount);
+    $('#p-total').textContent = pkgDiscount
+      ? `${n} TRAVELLERS × ${inr(p.price)} = ${inr(sub)}  \u2192  ${inr(afterDiscount)} with ${pkgCouponCode}`
+      : n + ' TRAVELLERS × ' + inr(p.price) + ' = ' + inr(sub);
+    $('#enquire').href = 'plan-trip.html?package=' + p.id + '&dep=' + encodeURIComponent($('#dep').value) + '&trav=' + n;
+  }
+  ['dep','trav'].forEach(id=>$('#'+id).addEventListener('change', total));
+  total();
+
+  $('#pkg-coupon-apply').addEventListener('click', () => {
+    const code = $('#pkg-coupon').value.trim();
+    const msg = $('#pkg-coupon-msg');
+    if(!code) return;
+    const n = parseInt(($('#trav').value||'2').replace('+',''),10);
+    const res = App.applyCoupon(code, n*p.price, 'package');
+    msg.classList.remove('ok','err'); msg.classList.add('show');
+    if(res.ok){
+      pkgDiscount = res.discount; pkgCouponCode = res.code;
+      msg.textContent = res.message + ' Mention it in your enquiry.'; msg.classList.add('ok');
+      if(window.YK) YK.track('coupon_applied', {category:'conversion', label:res.code, value:res.discount});
+    } else {
+      pkgDiscount = 0; pkgCouponCode = '';
+      msg.textContent = res.message; msg.classList.add('err');
+    }
+    total();
+  });
+
+  function drawReviews(){
+    const rv = App.reviewsBlock(p.id, 3);
+    $('#reviews-count').textContent = `Traveller reviews (${rv.count}) \u00b7 ${rv.avg} average`;
+    $('#reviews-list').innerHTML = rv.html;
+  }
+  drawReviews();
+  $('#rv-form-anchor').innerHTML = App.reviewFormHtml();
+  App.wireReviewForm(p.id, drawReviews);
+
+  if(window.YK) YK.track('package_view', {category:'catalogue', label:p.name, value:p.price});
+  App.reveals();
+}
+
+</script>
+<script src="assets/js/tracking.js"></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complete your booking · Yatra Kosh</title>
+<meta name="description" content="Guest details and dates for the stay you selected.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main id="main">
+
+<div class="wrap"><p class="crumb"><a href="index.html">Home</a> / <a href="destinations.html">Destinations</a> / Booking</p></div>
+
+<section class="section" style="padding-top:24px">
+  <div class="wrap">
+    <div class="steps">
+      <div class="done">01 Choose a stay</div>
+      <div class="done">02 Your details</div>
+      <div>03 Confirmed</div>
+    </div>
+
+    <div class="split-side split-side--right">
+      <div>
+        <h1 style="font-size:clamp(1.7rem,4vw,2.4rem)">Who is travelling?</h1>
+        <p class="lede">Five fields. Nothing is charged now — you pay the property at check-in.</p>
+
+        <form class="panel" id="bform" data-form="booking" novalidate style="margin-top:24px">
+          <div class="form-grid">
+            <div class="field"><label for="cin">Check in</label>
+              <input type="date" id="cin" name="cin" data-rule="required,future"><p class="field-error"></p></div>
+            <div class="field"><label for="cout">Check out</label>
+              <input type="date" id="cout" name="cout" data-rule="required"><p class="field-error"></p></div>
+            <div class="field"><label for="guests">Guests</label>
+              <select id="guests" name="guests"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+            <div class="field"><label for="rooms">Rooms</label>
+              <select id="rooms" name="rooms"><option selected>1</option><option>2</option><option>3</option></select></div>
+          </div>
+
+          <div class="field"><label for="name">Full name <span class="hint">as printed on your ID</span></label>
+            <input type="text" id="name" name="name" data-rule="required" autocomplete="name"><p class="field-error"></p></div>
+
+          <div class="form-grid">
+            <div class="field"><label for="email">Email</label>
+              <input type="email" id="email" name="email" data-rule="required,email" autocomplete="email"><p class="field-error"></p></div>
+            <div class="field"><label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" data-rule="required,phone" autocomplete="tel" placeholder="10 digits"><p class="field-error"></p></div>
+          </div>
+
+          <div class="field"><label for="notes">Anything the property should know <span class="hint">optional</span></label>
+            <textarea id="notes" name="notes" style="min-height:88px" placeholder="Late arrival, ground floor room, vegetarian meals&hellip;"></textarea></div>
+
+          <div class="field"><label for="coupon">Coupon code <span class="hint">optional</span></label>
+            <div class="coupon-row">
+              <input type="text" id="coupon" placeholder="e.g. WELCOME10">
+              <button class="btn btn-ghost btn-sm" type="button" id="coupon-apply" data-track="apply coupon">Apply</button>
+            </div>
+            <p class="coupon-msg" id="coupon-msg"></p>
+          </div>
+
+          <button class="btn btn-primary btn-block" type="submit" data-track="confirm booking" data-cat="conversion">Confirm booking</button>
+          <p class="hint center" style="margin:12px 0 0">Free cancellation until 72 hours before check-in.</p>
+        </form>
+      </div>
+
+      <aside><div class="panel" id="summary" style="position:sticky;top:88px"></div></aside>
+    </div>
+  </div>
+</section>
+</main>
+<div id="site-footer"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/scene.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+
+function pageInit(){
+  const {$, param, esc, inr} = App;
+  const h = HOTELS.find(x => x.id === param('hotel')) || HOTELS[0];
+  let discount = 0, couponCode = '';
+
+  $('#cin').value  = param('cin')  || App.plus(7);
+  $('#cout').value = param('cout') || App.plus(10);
+
+  function nights(){
+    const a = new Date($('#cin').value), b = new Date($('#cout').value);
+    return Math.max(1, Math.round((b-a)/864e5) || 1);
+  }
+
+  function summary(){
+    const n = nights(), r = parseInt($('#rooms').value,10);
+    const sub = h.price*n*r, tax = Math.round((sub-discount)*0.12);
+    const total = Math.max(0, sub - discount) + tax;
+    $('#summary').innerHTML = `
+      <span class="eyebrow">Your stay</span>
+      <div style="border-radius:var(--r-md);overflow:hidden;margin-bottom:14px">${Scene.make(h.scene,h.palette,h.id)}</div>
+      <h3 style="margin-bottom:2px">${esc(h.name)}</h3>
+      <p class="ticket-loc" style="margin-bottom:14px">${esc(h.area)} · ${esc(h.destName)}</p>
+      <div class="boarding-row"><span>${inr(h.price)} × ${n} nights × ${r} room${r>1?'s':''}</span><span>${inr(sub)}</span></div>
+      ${discount ? `<div class="boarding-row"><span>Coupon ${esc(couponCode)}</span><span>&minus;${inr(discount)}</span></div>` : ''}
+      <div class="boarding-row"><span>GST (12%)</span><span>${inr(tax)}</span></div>
+      <div class="boarding-row" style="border:none;font-weight:600"><span>Payable at property</span><span>${inr(total)}</span></div>`;
+    return {n, rooms:r, sub, tax, total, discount, couponCode};
+  }
+  ['cin','cout','rooms','guests'].forEach(id => $('#'+id).addEventListener('change', summary));
+  summary();
+
+  $('#coupon-apply').addEventListener('click', () => {
+    const code = $('#coupon').value.trim();
+    const msg = $('#coupon-msg');
+    if(!code){ return; }
+    const sub = h.price * nights() * parseInt($('#rooms').value,10);
+    const res = App.applyCoupon(code, sub, 'hotel');
+    msg.classList.remove('ok','err'); msg.classList.add('show');
+    if(res.ok){
+      discount = res.discount; couponCode = res.code;
+      msg.textContent = res.message; msg.classList.add('ok');
+      if(window.YK) YK.track('coupon_applied', {category:'conversion', label:res.code, value:res.discount});
+    } else {
+      discount = 0; couponCode = '';
+      msg.textContent = res.message; msg.classList.add('err');
+    }
+    summary();
+  });
+
+  $('#bform').addEventListener('submit', e => {
+    e.preventDefault();
+    if(!App.validate(e.target)) return;
+    const s = summary();
+    const ref = 'YK' + Math.random().toString(36).slice(2,8).toUpperCase();
+    const booking = {
+      ref, hotel:h.id, hotelName:h.name, area:h.area, dest:h.destName,
+      scene:h.scene, palette:h.palette,
+      cin:$('#cin').value, cout:$('#cout').value,
+      guests:$('#guests').value, rooms:s.rooms, nights:s.n, total:s.total,
+      discount:s.discount, couponCode:s.couponCode,
+      name:$('#name').value.trim(), email:$('#email').value.trim(), phone:$('#phone').value.trim()
+    };
+    try{ sessionStorage.setItem('yk_booking', JSON.stringify(booking)); }catch(err){}
+    try{
+      const hist = JSON.parse(localStorage.getItem('yk_bookings')||'[]');
+      hist.unshift(booking);
+      localStorage.setItem('yk_bookings', JSON.stringify(hist.slice(0,20)));
+    }catch(err){}
+    if(window.YK) YK.track('booking_complete', {category:'conversion', label:h.name, value:s.total});
+    location.href = 'confirmation.html';
+  });
+
+  if(window.YK) YK.track('booking_start', {category:'conversion', label:h.name, value:h.price});
+}
+
+</script>
+<script src="assets/js/tracking.js"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My profile · Yatra Kosh</title>
+<meta name="description" content="Your saved bookings and trip enquiries.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+<main id="main">
+
+<section class="page-head">
+  <div class="wrap">
+    <span class="eyebrow on-dark">Account</span>
+    <h1>My profile</h1>
+    <p class="lede">Your saved bookings and trip enquiries, kept on this device.</p>
+  </div>
+</section>
+
+<section class="section" id="signed-out" style="display:none">
+  <div class="wrap" style="max-width:520px">
+    <div class="empty">
+      <h3>You are not signed in</h3>
+      <p class="muted">Sign in to see your bookings and enquiries in one place.</p>
+      <a class="btn btn-primary" href="login.html" data-track="profile sign in prompt">Sign in</a>
+      <a class="btn btn-ghost" href="register.html" data-track="profile register prompt" style="margin-left:8px">Create account</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="signed-in" style="display:none">
+  <div class="wrap">
+    <div class="panel" style="margin-bottom:28px">
+      <div class="profile-head">
+        <span class="avatar-ring" id="avatar"></span>
+        <div>
+          <h2 style="margin-bottom:2px" id="who"></h2>
+          <p class="muted mono" style="margin:0;font-size:.8rem" id="member-since"></p>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="signout" style="margin-left:auto" data-track="sign out">Sign out</button>
+      </div>
+    </div>
+
+    <div class="statstrip" style="margin-bottom:34px">
+      <div><b id="stat-bookings">0</b><span>Bookings</span></div>
+      <div><b id="stat-enquiries">0</b><span>Trip enquiries</span></div>
+      <div><b id="stat-nights">0</b><span>Nights booked</span></div>
+      <div><b id="stat-spend">\u20b90</b><span>Total booked value</span></div>
+    </div>
+
+    <div class="section-head"><span class="eyebrow">Bookings</span><h2>Your hotel stays</h2></div>
+    <div class="stack" id="bookings-list" style="margin-bottom:40px"></div>
+    <div id="bookings-empty"></div>
+
+    <div class="section-head"><span class="eyebrow">Enquiries</span><h2>Your trip enquiries</h2></div>
+    <div class="table-scroll"><table class="data" id="enquiries-table"></table></div>
+    <div id="enquiries-empty"></div>
+  </div>
+</section>
+
+</main>
+<div id="site-footer"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/scene.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+function pageInit(){
+  const {$, esc, inr, initials} = App;
+  const user = App.currentUser();
+
+  if(!user){
+    $('#signed-out').style.display = 'block';
+    return;
+  }
+  $('#signed-in').style.display = 'block';
+
+  const name = user.includes('@') ? user.split('@')[0] : user;
+  $('#avatar').textContent = initials(name || 'Y K');
+  $('#who').textContent = name.replace(/\./g,' ').replace(/^\w/, c=>c.toUpperCase());
+  let joined = localStorage.getItem('yk_joined');
+  if(!joined){ joined = new Date().toISOString().slice(0,10); localStorage.setItem('yk_joined', joined); }
+  $('#member-since').textContent = 'Member since ' + joined;
+
+  $('#signout').addEventListener('click', () => {
+    localStorage.removeItem('yk_signedin');
+    if(window.YK) YK.track('logout', {category:'auth', label:'profile'});
+    location.href = 'index.html';
+  });
+
+  let bookings = [], enquiries = [];
+  try{ bookings = JSON.parse(localStorage.getItem('yk_bookings')||'[]'); }catch(e){}
+  try{ enquiries = JSON.parse(localStorage.getItem('yk_enquiries')||'[]'); }catch(e){}
+
+  $('#stat-bookings').textContent = bookings.length;
+  $('#stat-enquiries').textContent = enquiries.length;
+  $('#stat-nights').textContent = bookings.reduce((s,b)=>s+(b.nights||0),0);
+  $('#stat-spend').textContent = inr(bookings.reduce((s,b)=>s+(b.total||0),0));
+
+  if(bookings.length){
+    $('#bookings-list').innerHTML = bookings.map(b => `
+      <div class="ticket">
+        <div class="ticket-art">${Scene.make(b.scene||'mountain', b.palette||'dusk', b.hotel||b.ref)}</div>
+        <div class="ticket-main">
+          <p class="ticket-loc">${esc(b.area||'')} \u00b7 ${esc(b.dest||'')}</p>
+          <h3>${esc(b.hotelName||'Stay')}</h3>
+          <p style="margin:0;font-size:.9rem;color:var(--muted)">${esc(b.cin||'')} \u2192 ${esc(b.cout||'')} \u00b7 ${esc(b.nights||'')} nights</p>
+        </div>
+        <div class="ticket-stub">
+          <span class="rating-pill">${esc(b.ref||'')}</span>
+          <span class="ticket-price">${inr(b.total||0)}<small>at property</small></span>
+        </div>
+      </div>`).join('');
+  } else {
+    $('#bookings-empty').innerHTML = '<div class="empty"><h3>No bookings yet</h3><p class="muted">Book a stay and it will show up here.</p><a class="btn btn-primary btn-sm" href="destinations.html">Browse destinations</a></div>';
+  }
+
+  if(enquiries.length){
+    const cols = ['id','package','travellers','budget','days','submitted'];
+    $('#enquiries-table').innerHTML =
+      '<thead><tr>' + cols.map(c=>'<th>'+c+'</th>').join('') + '</tr></thead><tbody>' +
+      enquiries.map(e => '<tr>' + cols.map(c => {
+        let v = e[c] || '';
+        if(c==='submitted' && v) v = String(v).slice(0,10);
+        return '<td>' + esc(v) + '</td>';
+      }).join('') + '</tr>').join('') + '</tbody>';
+  } else {
+    $('#enquiries-empty').innerHTML = '<div class="empty"><h3>No enquiries yet</h3><p class="muted">Enquire about a package tour and it will show up here.</p><a class="btn btn-primary btn-sm" href="packages.html">Browse package tours</a></div>';
+  }
+}
+</script>
+<script src="assets/js/tracking.js"></script>
+</body>
+</html>
