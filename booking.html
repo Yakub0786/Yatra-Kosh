@@ -72,6 +72,16 @@
             <p class="coupon-msg" id="coupon-msg"></p>
           </div>
 
+          <div class="field">
+            <label>Payment method</label>
+            <div class="pay-options" id="pay-options">
+              <label class="pay-option is-active"><input type="radio" name="paymethod" value="upi" checked><span class="pay-icon">📱</span>UPI</label>
+              <label class="pay-option"><input type="radio" name="paymethod" value="card"><span class="pay-icon">💳</span>Card</label>
+              <label class="pay-option"><input type="radio" name="paymethod" value="cash"><span class="pay-icon">💵</span>Cash at property</label>
+            </div>
+            <p class="hint" style="margin-top:8px">You pay at the property on arrival — no card details are collected here.</p>
+          </div>
+
           <button class="btn btn-primary btn-block" type="submit" data-track="confirm booking" data-cat="conversion">Confirm booking</button>
           <p class="hint center" style="margin:12px 0 0">Free cancellation until 72 hours before check-in.</p>
         </form>
@@ -92,7 +102,7 @@
 <script>
 
 function pageInit(){
-  const {$, param, esc, inr} = App;
+  const {$, $$, param, esc, inr} = App;
   const h = HOTELS.find(x => x.id === param('hotel')) || HOTELS[0];
   let discount = 0, couponCode = '';
 
@@ -140,17 +150,26 @@ function pageInit(){
     summary();
   });
 
+  $$('input[name="paymethod"]').forEach(input => {
+    input.addEventListener('change', () => {
+      $$('.pay-option').forEach(l => l.classList.remove('is-active'));
+      input.closest('.pay-option').classList.add('is-active');
+      if(window.YK) YK.track('payment_method_selected', {category:'conversion', label:input.value});
+    });
+  });
+
   $('#bform').addEventListener('submit', e => {
     e.preventDefault();
     if(!App.validate(e.target)) return;
     const s = summary();
     const ref = 'YK' + Math.random().toString(36).slice(2,8).toUpperCase();
+    const payMethod = ($$('input[name="paymethod"]').find(i => i.checked) || {}).value || 'upi';
     const booking = {
       ref, hotel:h.id, hotelName:h.name, area:h.area, dest:h.destName,
       scene:h.scene, palette:h.palette,
       cin:$('#cin').value, cout:$('#cout').value,
       guests:$('#guests').value, rooms:s.rooms, nights:s.n, total:s.total,
-      discount:s.discount, couponCode:s.couponCode,
+      discount:s.discount, couponCode:s.couponCode, payMethod,
       name:$('#name').value.trim(), email:$('#email').value.trim(), phone:$('#phone').value.trim()
     };
     try{ sessionStorage.setItem('yk_booking', JSON.stringify(booking)); }catch(err){}

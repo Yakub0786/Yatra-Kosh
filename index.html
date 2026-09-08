@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>India, properly planned · Yatra Kosh</title>
-<meta name="description" content="A travel agency for India — fixed-departure package tours and hand-picked hotels across sixteen destinations.">
+<meta name="description" content="A travel agency for India — fixed-departure package tours and hand-picked hotels across twenty destinations.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -13,11 +13,11 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Yatra Kosh">
 <meta property="og:title" content="India, properly planned · Yatra Kosh">
-<meta property="og:description" content="A travel agency for India — fixed-departure package tours and hand-picked hotels across sixteen destinations.">
+<meta property="og:description" content="A travel agency for India — fixed-departure package tours and hand-picked hotels across twenty destinations.">
 <meta property="og:url" content="https://yakub0786.github.io/Yatra-Kosh/index.html">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="India, properly planned · Yatra Kosh">
-<meta name="twitter:description" content="A travel agency for India — fixed-departure package tours and hand-picked hotels across sixteen destinations.">
+<meta name="twitter:description" content="A travel agency for India — fixed-departure package tours and hand-picked hotels across twenty destinations.">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -28,14 +28,14 @@
   <div class="hero-art" id="hero-art" aria-hidden="true"></div>
   <div class="wrap hero-inner">
     <span class="eyebrow on-dark geo-strip" id="geo-strip"></span>
-    <span class="eyebrow on-dark">16 destinations · 6 package tours · 67 stays</span>
+    <span class="eyebrow on-dark" id="hero-eyebrow">Destinations across India</span>
     <h1>India, <em>properly planned</em>.</h1>
     <p class="hero-sub">Fixed-departure tours with a private car and a real itinerary, or book a hand-picked hotel yourself. Either way, an honest write-up instead of marketing copy.</p>
     <div class="hero-stats">
-      <div><b>16</b><span>Destinations</span></div>
-      <div><b>6</b><span>Package tours</span></div>
-      <div><b>67</b><span>Stays listed</span></div>
-      <div><b>4.4</b><span>Average rating</span></div>
+      <div><b id="stat-dest">–</b><span>Destinations</span></div>
+      <div><b id="stat-pkg">–</b><span>Package tours</span></div>
+      <div><b id="stat-stays">–</b><span>Stays listed</span></div>
+      <div><b id="stat-rating">4.4</b><span>Average rating</span></div>
     </div>
   </div>
 </section>
@@ -94,7 +94,7 @@
         <span class="eyebrow">Or plan it yourself</span>
         <h2>Six destinations to start with</h2>
       </div>
-      <a class="btn btn-ghost" href="destinations.html" data-track="see all destinations home">See all sixteen</a>
+      <a class="btn btn-ghost" href="destinations.html" data-track="see all destinations home">See all twenty</a>
     </div>
     <div class="grid grid-3" id="featured"></div>
   </div>
@@ -149,7 +149,7 @@
         <li>No booking fee on hotels or packages.</li>
         <li>No fake urgency — we will never say two people are looking at this room.</li>
         <li>No paid placement. Sorting is by rating or price, never by who pays us.</li>
-        <li>Real photos where we have a key configured, honest illustrations everywhere else — never anything staged.</li>
+        <li>Honest photography and write-ups — never anything staged or paid-for placement.</li>
       </ul>
     </div>
   </div>
@@ -172,6 +172,14 @@ function pageInit(){
   $('#cin').value  = App.plus(14);
   $('#cout').value = App.plus(18);
   App.geoStrip($('#geo-strip'));
+
+  // live counts, so these never go stale when the catalogue grows
+  const avg = (HOTELS.reduce((s,h)=>s+h.rating,0)/HOTELS.length).toFixed(1);
+  $('#stat-dest').textContent = DESTINATIONS.length;
+  $('#stat-pkg').textContent = PACKAGES.length;
+  $('#stat-stays').textContent = HOTELS.length;
+  $('#stat-rating').textContent = avg;
+  $('#hero-eyebrow').textContent = DESTINATIONS.length + ' destinations · ' + PACKAGES.length + ' package tours · ' + HOTELS.length + ' stays';
 
   $('#pkg-feat').innerHTML = PACKAGES.slice(0,3).map(App.packageCard).join('');
   $('#featured').innerHTML = DESTINATIONS.slice(0,6).map(App.destCard).join('');

@@ -85,7 +85,62 @@ const DESTINATIONS = [
   { id:'gangtok', name:'Gangtok', state:'Sikkim', region:'Northeast', scene:'mountain', palette:'snow',
     tagline:'Prayer flags above the clouds',
     blurb:'MG Marg in the evening, Tsomgo Lake if the pass is open, and a permit sorted a day ahead for Nathula.',
-    best:'March – June, October – December', nights:4, tags:['Mountains','Monasteries','Road trip'] }
+    best:'March – June, October – December', nights:4, tags:['Mountains','Monasteries','Road trip'] },
+
+  { id:'varanasi', name:'Varanasi', state:'Uttar Pradesh', region:'North', scene:'fort', palette:'sand',
+    tagline:'The ghats at first light',
+    blurb:'A dawn boat ride down the Ganga is the thing everyone remembers. Evening Ganga aarti at Dashashwamedh is loud, crowded, and worth every minute.',
+    best:'October – March', nights:2, tags:['Heritage','Spiritual','River'] },
+
+  { id:'hampi', name:'Hampi', state:'Karnataka', region:'South', scene:'fort', palette:'sand',
+    tagline:'Boulders, ruins and a lost empire',
+    blurb:'Rent a cycle and lose a day among the Vijayanagara ruins. Sunset from Matanga Hill, and a coracle across the river to the quieter Hippie Island side.',
+    best:'October – February', nights:3, tags:['Heritage','Ruins','Backpacking'] },
+
+  { id:'amritsar', name:'Amritsar', state:'Punjab', region:'North', scene:'fort', palette:'rose',
+    tagline:'The Golden Temple, and the langar that never stops',
+    blurb:'The Harmandir Sahib at 4am before the crowds is unforgettable. Stay for the langar, then make the evening Wagah border ceremony an hour before sunset.',
+    best:'October – March', nights:2, tags:['Heritage','Spiritual','Food'] },
+
+  { id:'andaman-neil', name:'Neil Island', state:'Andaman Islands', region:'South', scene:'beach', palette:'sea',
+    tagline:'Havelock\u2019s quieter neighbour',
+    blurb:'A ferry hop from Havelock and a fraction of the crowd. Natural Bridge at low tide, Bharatpur for easy snorkelling, and Laxmanpur for the sunset.',
+    best:'October – May', nights:3, tags:['Islands','Beach','Snorkelling'] },
+
+  { id:'sinhagad', name:'Sinhagad Fort', state:'Maharashtra', region:'West', scene:'fort', palette:'forest',
+    tagline:'A hill fort with pithla-bhakri at the top',
+    blurb:'A steep but short climb (or a drive) up to a fort with real history and a serious view over the Sahyadris. Go early on a weekday — weekends are packed with Pune day-trippers — and eat the hot pithla-bhakri and kanda bhaji at the stalls near the top.',
+    best:'June – February', nights:1, tags:['Forts','Trekking','Day trip'] },
+
+  { id:'raigad', name:'Raigad Fort', state:'Maharashtra', region:'West', scene:'fort', palette:'dusk',
+    tagline:'Shivaji\u2019s capital, reached by ropeway',
+    blurb:'The capital of the Maratha empire, on a plateau 800m up. Take the ropeway if the climb of 1,400-odd steps sounds like too much, and give yourself a full day for the palace ruins, the market street, and the king\u2019s tomb.',
+    best:'July – February', nights:1, tags:['Forts','Heritage','Trekking'] },
+
+  { id:'diveagar', name:'Diveagar Beach', state:'Maharashtra', region:'West', scene:'beach', palette:'sea',
+    tagline:'A quiet Konkan beach, casuarina-lined',
+    blurb:'A long, clean, usually-empty stretch of Konkan coast, backed by suru trees and coconut palms. Homestays serve fresh Malvani seafood thalis, and the Suvarna Ganesh temple is a short ride away.',
+    best:'October – March', nights:2, tags:['Beach','Konkan','Slow travel'] },
+
+  { id:'ambyvalley', name:'Aamby Valley', state:'Maharashtra', region:'West', scene:'hills', palette:'forest',
+    tagline:'A planned resort city in the Sahyadris',
+    blurb:'A gated resort township near Lonavala with a lake, an airstrip, and manicured everything. It reads as more theme-park than wilderness, but the monsoon greenery and the cool air make it a genuine escape from Mumbai heat.',
+    best:'August – February', nights:2, tags:['Resort','Lakes','Luxury'] },
+
+  { id:'lonavala', name:'Lonavala', state:'Maharashtra', region:'West', scene:'hills', palette:'forest',
+    tagline:'Monsoon waterfalls and warm chikki',
+    blurb:'The default weekend hill station for both Mumbai and Pune. Come in the monsoon for the waterfalls at Bhushi Dam and the mist over Tiger\u2019s Leap, and leave with a bag of the chikki the town is famous for.',
+    best:'July – February', nights:2, tags:['Hills','Waterfalls','Weekend getaway'] },
+
+  { id:'goldentemple', name:'Golden Temple', state:'Punjab', region:'North', scene:'fort', palette:'sand',
+    tagline:'Harmandir Sahib, gold on still water',
+    blurb:'The holiest gurdwara in Sikhism, its gold sanctum mirrored in the sarovar around it. Arrive before dawn for the quiet, sit for the langar that feeds tens of thousands a day, and stay for the palki ceremony at night.',
+    best:'October – March', nights:2, tags:['Spiritual','Heritage','Food'] },
+
+  { id:'ooty', name:'Ooty', state:'Tamil Nadu', region:'South', scene:'hills', palette:'forest',
+    tagline:'The Nilgiri toy train and tea-covered slopes',
+    blurb:'The queen of the Nilgiris, reached best on the UNESCO-listed mountain railway from Mettupalayam. Botanical gardens, a boating lake, and endless tea estates — cliché in the best way, and cool year-round.',
+    best:'October – June', nights:3, tags:['Hills','Tea estates','Toy train'] }
 ];
 
 /* hotels: [dest, name, area, stars, pricePerNight, rating, reviews, amenities, blurb] */
@@ -171,7 +226,61 @@ const HOTEL_ROWS = [
 
   ['gangtok','MG Marg Boutique Stay','MG Marg',4,4200,4.5,121,'wifi,breakfast,ac,restaurant','Steps from the pedestrian promenade, mountain views from the upper floors.'],
   ['gangtok','Tsomgo Heights Retreat','Tadong',4,5100,4.6,87,'wifi,breakfast,heater,restaurant','A quieter base with the best sunrise-over-Kanchenjunga rooms in town.'],
-  ['gangtok','Ranka Monastery Homestay','Ranka',3,1900,4.4,58,'wifi,breakfast,heater','A family home beside the monastery, simple and genuinely warm.']
+  ['gangtok','Ranka Monastery Homestay','Ranka',3,1900,4.4,58,'wifi,breakfast,heater','A family home beside the monastery, simple and genuinely warm.'],
+
+  ['varanasi','Ganges View Heritage','Assi Ghat',4,4200,4.6,167,'wifi,breakfast,ac,heritage,restaurant','A restored heritage house right on Assi Ghat, with a terrace over the river.'],
+  ['varanasi','BrijRama Palace','Darbhanga Ghat',5,11500,4.8,124,'wifi,breakfast,ac,heritage,restaurant','An 18th-century palace on the ghats, reached by boat, with river-facing suites.'],
+  ['varanasi','Old City Guesthouse','Dashashwamedh',3,1600,4.1,203,'wifi,ac','In the lanes behind the main ghat. Basic, spotless, and two minutes from the aarti.'],
+  ['varanasi','Cantonment Comfort Inn','Cantonment',3,2200,3.9,148,'wifi,ac,parking,restaurant','Quieter side of the city near the station, useful for an early train out.'],
+
+  ['hampi','Hampi Boulders Resort','Kaddirampura',4,4600,4.6,112,'pool,wifi,breakfast,ac,restaurant','Cottages tucked among the granite boulders, with a natural rock pool.'],
+  ['hampi','Hippie Island Huts','Virupapur Gaddi',3,1400,4.3,178,'wifi,breakfast,riverside','Bamboo huts across the river, paddy-field views, hammocks, no rush.'],
+  ['hampi','Heritage Bazaar Stay','Hampi Bazaar',3,1700,4.0,134,'wifi,breakfast','Walking distance to the Virupaksha temple, in the old bazaar itself.'],
+  ['hampi','Evolve Back Hampi','Kamalapura',5,13500,4.9,88,'pool,spa,wifi,breakfast,ac,restaurant','Vijayanagara-inspired luxury with courtyards, arches, and a serious spa.'],
+
+  ['amritsar','Golden Temple View Hotel','Heritage Street',4,3800,4.5,192,'wifi,breakfast,ac,restaurant','Rooftop with a direct line of sight to the temple, five minutes from the langar hall.'],
+  ['amritsar','Ranjit\u2019s SVAASA Haveli','Mall Road',5,8200,4.7,96,'pool,spa,wifi,breakfast,ac,heritage','A 250-year-old heritage haveli, all wellness and old-Punjab charm.'],
+  ['amritsar','Backpacker\u2019s Nest','Katra Ahluwalia',3,1300,4.2,221,'wifi,breakfast','Cheap, central, and a two-minute walk to the temple. Sociable rooftop.'],
+  ['amritsar','Hyatt Amritsar','GT Road',5,7600,4.6,141,'pool,spa,wifi,breakfast,ac,restaurant,parking','Full-service comfort on the edge of town, best for families and drivers.'],
+
+  ['andaman-neil','Neil Beachfront Cottages','Laxmanpur',4,4100,4.5,118,'wifi,breakfast,ac,beachfront','Steps from the sunset beach, with a handful of sea-facing cottages.'],
+  ['andaman-neil','Bharatpur Dive Lodge','Bharatpur',3,2600,4.3,94,'wifi,breakfast,diving','Runs snorkelling and intro-dive trips off the calm eastern reef.'],
+  ['andaman-neil','Summer Sand Beach Resort','Sitapur',4,5400,4.6,77,'pool,wifi,breakfast,ac,beachfront,restaurant','On the sunrise side, quiet and green, good for a proper unwind.'],
+  ['andaman-neil','Coconut Grove Homestay','Neil Kendra',3,1800,4.4,63,'wifi,breakfast','A family place near the jetty, bicycles included, honest home cooking.'],
+
+  ['sinhagad','Sinhagad Valley Resort','Donje',3,2400,4.1,96,'wifi,breakfast,parking,restaurant','At the base of the fort road, a handy overnight before an early-morning climb.'],
+  ['sinhagad','Atkawadi Farm Stay','Atkawadi',3,1900,4.3,58,'wifi,breakfast,parking','A working farm stay in the foothills, quiet and cheap, with home-cooked Maharashtrian food.'],
+  ['sinhagad','Khadakwasla Lake Lodge','Khadakwasla',4,3600,4.4,82,'wifi,breakfast,ac,restaurant','Lakeside rooms on the Pune side, a short drive from both the fort and the city.'],
+
+  ['raigad','Raigad Hill Retreat','Pachad',4,3800,4.4,74,'wifi,breakfast,ac,restaurant,parking','At the base near the ropeway station, with fort-facing rooms and an early breakfast for climbers.'],
+  ['raigad','Pachad Heritage Homestay','Pachad',3,2100,4.2,51,'wifi,breakfast,parking','A simple family stay in the village below the fort, big Maratha thalis at dinner.'],
+  ['raigad','MTDC Raigad Resort','Raigad Base',3,2600,3.9,118,'wifi,restaurant,parking','The state tourism property — dated but well-placed, right where the ropeway leaves from.'],
+
+  ['diveagar','Diveagar Beach Homestay','Diveagar',3,2200,4.5,103,'wifi,breakfast,beachfront','A Konkan family home a two-minute walk from the sand, Malvani seafood thalis on request.'],
+  ['diveagar','Suvarnaganesh Beach Resort','Diveagar North',4,3900,4.4,87,'pool,wifi,breakfast,ac,beachfront,restaurant','The comfortable option, with a pool and direct beach access near the Suvarna Ganesh temple.'],
+  ['diveagar','Casa Konkan','Bharadkhol',4,3400,4.6,62,'wifi,breakfast,ac,beachfront','A small boutique guesthouse on a quieter stretch, sea-facing balconies and a good kitchen.'],
+  ['diveagar','Palm Shade Cottages','Diveagar',3,1800,4.2,79,'wifi,breakfast,parking','Budget cottages under the coconut palms, a short walk back from the beach road.'],
+
+  ['ambyvalley','Aamby Valley City Resort','Aamby Valley',5,12000,4.5,134,'pool,spa,wifi,breakfast,ac,restaurant,parking','Lakeside villas inside the gated township, with the full resort-city amenities.'],
+  ['ambyvalley','Lakeview Chalets','Aamby Valley',5,9800,4.4,88,'pool,wifi,breakfast,ac,restaurant','Timber chalets overlooking the artificial lake, quiet and manicured.'],
+  ['ambyvalley','Sahyadri Greens','Bhurse',4,5200,4.2,66,'pool,wifi,breakfast,ac,parking','Just outside the gates, a cheaper way to be near the valley with hill views.'],
+
+  ['lonavala','The Machan Treehouse','Jambulne',5,11500,4.7,152,'wifi,breakfast,restaurant','Eco treehouses on stilts in a private forest — the memorable splurge near Lonavala.'],
+  ['lonavala','Sunny\u2019s Lonavala Villa','Tungarli',4,4600,4.4,118,'pool,wifi,breakfast,ac,parking','A hillside villa with a pool and valley views, ten minutes from the main market.'],
+  ['lonavala','Kumar Resort','Lonavala',3,2800,3.9,203,'pool,wifi,ac,restaurant,parking','Central, family-focused, a little dated but reliable and walkable to the chikki shops.'],
+  ['lonavala','Bhushi Dam Homestay','INS Shivaji Road',3,2100,4.2,74,'wifi,breakfast,parking','A quiet homestay close to the waterfalls, best in the monsoon.'],
+  ['lonavala','Della Resorts','Kunegaon',5,13500,4.6,167,'pool,spa,wifi,breakfast,ac,restaurant,bar','The adventure-and-luxury resort, with the big activity park attached.'],
+
+  ['goldentemple','Hotel Golden Sarovar','Heritage Street',4,4200,4.5,231,'wifi,breakfast,ac,restaurant','A two-minute walk from the temple entrance on the pedestrianised heritage street.'],
+  ['goldentemple','Temple View Boutique','Jallianwala Bagh Road',4,3600,4.4,148,'wifi,breakfast,ac','Upper rooms with a clear view of the golden dome, close to Jallianwala Bagh.'],
+  ['goldentemple','SGPC Sarai','Temple Complex',2,600,4.1,312,'wifi','The gurdwara\u2019s own pilgrim lodging — spartan and astonishingly cheap, right beside the sarovar.'],
+  ['goldentemple','Taj Swarna','Mall Road',5,9800,4.7,176,'pool,spa,wifi,breakfast,ac,restaurant,parking','Full luxury a short ride from the temple, the choice for a comfortable base.'],
+
+  ['ooty','Fern Hill Heritage Hotel','Fernhill',4,4800,4.4,142,'wifi,breakfast,heater,restaurant,heritage','A restored maharaja-era property on a wooded hill, all fireplaces and old wood.'],
+  ['ooty','Tea Estate Bungalow','Coonoor Road',4,4200,4.6,97,'wifi,breakfast,heater','A working-estate bungalow between Ooty and Coonoor, with the tea slopes at the door.'],
+  ['ooty','Lake View Lodge','Charing Cross',3,2400,4.0,188,'wifi,heater,restaurant,parking','Central and walkable to the lake and the toy-train station, plain but well-placed.'],
+  ['ooty','Sterling Ooty','Fern Hill',4,5600,4.3,124,'wifi,breakfast,ac,restaurant,parking','The dependable mid-range resort, good for families doing the gardens-and-lake circuit.'],
+  ['ooty','Kurinji Homestay','Kotagiri Road',3,1900,4.5,71,'wifi,breakfast,heater,parking','A Badaga family homestay towards Kotagiri, quiet and cool with home-grown produce.']
 ];
 
 const AMENITY_LABELS = {
@@ -337,7 +446,7 @@ const FAQS = [
   ['What ID do I need at check-in?','Any government photo ID for Indian nationals. Foreign nationals need a passport and visa page, and Ladakh permits for Nubra and Pangong.'],
   ['Can a package be customised?','Yes — every package on this site is a starting point. Use the enquiry form on the package page and an advisor will adjust nights, hotels, or the route.'],
   ['What if the property looks different from the pictures?','Message us within two hours of check-in and we will move you or refund the stay.'],
-  ['Are the illustrations real photographs?','No — every image on this site is drawn in code. It keeps the site fast and avoids licensing issues.']
+  ['Are the photos of the exact hotel room?','Photos represent the destination and neighbourhood, and may not show the exact room you book. Where a real photo of a location isn\u2019t available, we show an illustrated view instead. The written description is always specific to the property.']
 ];
 
 /* ======================================================================

@@ -1,8 +1,7 @@
 /* ==========================================================================
-   tracking.js — behavioural data collection layer
-   Behavioural Data Analytics & UX mini project
+   tracking.js — behavioural analytics layer
 
-   Captures, per the course guidelines:
+   Captures:
      page views · button clicks · scroll depth · mouse behaviour
      form analytics · search analytics · session analytics
      device · browser · screen resolution · geography · downloads · video
@@ -363,13 +362,13 @@
     el.setAttribute('role', 'dialog');
     el.setAttribute('aria-label', 'Data collection notice');
     el.innerHTML =
-      '<h3 style="margin-bottom:8px;font-size:1.05rem">We record how this page is used</h3>' +
-      '<p>This is a student project. While you browse, the site logs pages viewed, clicks, ' +
-      'scrolling, searches, form activity and your device type — no names, no email, no payment data. ' +
-      'The data is used only for coursework analysis and you can decline without losing any feature.</p>' +
+      '<h3 style="margin-bottom:8px;font-size:1.05rem">Cookies &amp; analytics</h3>' +
+      '<p>We use analytics to understand how visitors use the site and to improve it — ' +
+      'pages viewed, clicks, searches and device type. No names, email, or payment data are ever collected. ' +
+      'You can decline and every feature still works. See our <a href="privacy.html" style="color:var(--indigo)">Privacy Policy</a>.</p>' +
       '<div class="consent-actions">' +
-      '<button class="btn btn-primary btn-sm" id="yk-yes">Allow tracking</button>' +
-      '<button class="btn btn-ghost btn-sm" id="yk-no">Browse without tracking</button>' +
+      '<button class="btn btn-primary btn-sm" id="yk-yes">Accept</button>' +
+      '<button class="btn btn-ghost btn-sm" id="yk-no">Decline</button>' +
       '</div>';
     document.body.appendChild(el);
     el.querySelector('#yk-yes').addEventListener('click', function () {

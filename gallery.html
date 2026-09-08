@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gallery · Yatra Kosh</title>
-<meta name="description" content="Illustrated posters for every destination and package tour we offer.">
+<meta name="description" content="Every destination, hotel and package tour we offer — real photos where we have them, illustrations everywhere else.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -13,11 +13,11 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Yatra Kosh">
 <meta property="og:title" content="Gallery · Yatra Kosh">
-<meta property="og:description" content="Illustrated posters for every destination and package tour we offer.">
+<meta property="og:description" content="Every destination, hotel and package tour we offer — real photos where we have them, illustrations everywhere else.">
 <meta property="og:url" content="https://yakub0786.github.io/Yatra-Kosh/gallery.html">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gallery · Yatra Kosh">
-<meta name="twitter:description" content="Illustrated posters for every destination and package tour we offer.">
+<meta name="twitter:description" content="Every destination, hotel and package tour we offer — real photos where we have them, illustrations everywhere else.">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -27,8 +27,8 @@
 <section class="page-head">
   <div class="wrap">
     <span class="eyebrow on-dark">Gallery</span>
-    <h1>Every place and route, drawn in code</h1>
-    <p class="lede">No stock photography and nothing retouched. Each poster is generated in your browser from that destination's own colour palette.</p>
+    <h1>Every place, stay and route</h1>
+    <p class="lede">Real photos where a destination or neighbourhood has one on record, a hand-drawn illustration the rest of the time — so nothing is ever a blank card.</p>
   </div>
 </section>
 
@@ -36,7 +36,7 @@
   <div class="wrap">
     <div class="filters">
       <div class="field"><label for="g-kind">Show</label>
-        <select id="g-kind"><option value="dest">Destinations</option><option value="pkg">Package tours</option></select></div>
+        <select id="g-kind"><option value="dest">Destinations</option><option value="hotel">Hotels</option><option value="pkg">Package tours</option></select></div>
       <div class="field"><label for="g-filter">Filter</label>
         <select id="g-filter"><option value="">Everything</option></select></div>
       <button class="btn btn-ghost btn-sm" id="g-shuffle" data-track="shuffle gallery">Shuffle</button>
@@ -61,35 +61,42 @@ function pageInit(){
   function destTiles(){
     let t = [];
     DESTINATIONS.forEach(d => {
-      t.push({key:d.id, scene:d.scene, palette:d.palette, cap:d.name + ' · ' + d.state});
-      t.push({key:d.id, scene:d.scene, palette:VARIANTS[(d.name.length+2)%VARIANTS.length], cap:d.name + ' · alternate light'});
+      t.push({key:d.id, scene:d.scene, palette:d.palette, cap:d.name + ' · ' + d.state, photoDest:d.id});
+      t.push({key:d.id, scene:d.scene, palette:VARIANTS[(d.name.length+2)%VARIANTS.length], cap:d.name + ' · illustrated'});
     });
     return t;
   }
   function pkgTiles(){
-    return PACKAGES.map(p => ({key:p.id, scene:p.scene, palette:p.palette, cap:p.name + ' · ' + p.theme}));
+    return PACKAGES.map(p => ({key:p.id, scene:p.scene, palette:p.palette, cap:p.name + ' · ' + p.theme, photoDest:p.dests[0]||''}));
+  }
+  function hotelTiles(){
+    return HOTELS.map(h => ({key:h.id, scene:h.scene, palette:h.palette, cap:h.name + ' · ' + h.area,
+      photoArea:h.area, photoState:h.state, photoFallback:h.dest}));
   }
 
   let kind = 'dest', tiles = destTiles();
 
   function refreshFilter(){
-    const opts = kind==='dest'
-      ? DESTINATIONS.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`)
+    const opts = kind==='dest' ? DESTINATIONS.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`)
+      : kind==='hotel' ? HOTELS.map(h=>`<option value="${h.id}">${esc(h.name)}</option>`)
       : PACKAGES.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`);
     $('#g-filter').innerHTML = '<option value="">Everything</option>' + opts.join('');
   }
 
   function draw(list){
     $('#grid').innerHTML = list.map((t,i) => `
-      <figure data-hover="gallery ${esc(t.cap)}" data-track="gallery tile ${esc(t.cap)}" data-cat="gallery">
+      <figure data-hover="gallery ${esc(t.cap)}" data-track="gallery tile ${esc(t.cap)}" data-cat="gallery"
+        ${t.photoDest ? `data-photo-dest="${esc(t.photoDest)}"` : ''}
+        ${t.photoArea ? `data-photo-area="${esc(t.photoArea)}" data-photo-state="${esc(t.photoState)}" data-photo-fallback="${esc(t.photoFallback)}"` : ''}>
         ${Scene.make(t.scene, t.palette, t.key + '-' + i)}
         <figcaption>${esc(t.cap)}</figcaption>
       </figure>`).join('');
+    App.reveals();
   }
 
   $('#g-kind').addEventListener('change', e => {
     kind = e.target.value;
-    tiles = kind==='dest' ? destTiles() : pkgTiles();
+    tiles = kind==='dest' ? destTiles() : kind==='hotel' ? hotelTiles() : pkgTiles();
     refreshFilter(); draw(tiles);
   });
   $('#g-filter').addEventListener('change', e => {

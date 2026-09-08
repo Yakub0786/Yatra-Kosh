@@ -97,7 +97,7 @@
     <div class="footer-grid">
       <div>
         <a class="brand" href="index.html" style="margin-bottom:14px">${MARK}<span>Yatra Kosh</span></a>
-        <p style="max-width:34ch">A student-built travel agency site — hotels and fixed-departure package tours across India. Properties are fictional; no payment is ever taken.</p>
+        <p style="max-width:34ch">Hand-picked hotels and fixed-departure package tours across India — honest write-ups, no booking fees, real advisors.</p>
       </div>
       <div><h4>Explore</h4><ul>
         <li><a href="destinations.html">Destinations</a></li>
@@ -116,8 +116,8 @@
         <li><a href="analytics.html">Analytics console</a></li></ul></div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Yatra Kosh · B.Sc. Data Science mini project</span>
-      <span><a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · Behavioural data collected with consent</span>
+      <span>© 2026 Yatra Kosh · Travel &amp; stays across India</span>
+      <span><a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · Made with care in Mumbai</span>
     </div>
   </div>
 </footer>`;
@@ -170,7 +170,7 @@
     const am = h.amenities.slice(0, 4).map(a => `<li>${esc(AMENITY_LABELS[a] || a)}</li>`).join('');
     return `
 <article class="ticket reveal" data-hover="hotel ${h.name}">
-  <div class="ticket-art" data-photo-dest="${h.dest}">${Scene.make(h.scene, h.palette, h.id)}</div>
+  <div class="ticket-art" data-photo-area="${esc(h.area)}" data-photo-state="${esc(h.state)}" data-photo-fallback="${h.dest}">${Scene.make(h.scene, h.palette, h.id)}</div>
   <div class="ticket-main">
     <p class="ticket-loc">${esc(h.area)} · ${esc(h.destName)}</p>
     <h3>${esc(h.name)}</h3>
@@ -406,6 +406,13 @@
       if (!destId) return;
       el.dataset.photoFilled = '1';
       Photos.fillPhoto(el, destId);
+    });
+    $$('[data-photo-area]', root || document).forEach(el => {
+      if (el.dataset.photoFilled) return;
+      const area = el.dataset.photoArea, state = el.dataset.photoState, fallback = el.dataset.photoFallback;
+      if (!area) return;
+      el.dataset.photoFilled = '1';
+      Photos.fillHotelPhoto(el, area, state, fallback);
     });
   }
   window.App.fillPhotos = fillPhotos;

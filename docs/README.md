@@ -1,218 +1,92 @@
-# Yatra Kosh v2 — travel agency site
+# Yatra Kosh — travel & stays across India
 
-Built for the **Behavioural Data Analytics and UX** mini project. v2 rebuild:
-16 destinations (up from 10), 6 fixed-departure package tours, an enquiry flow,
-testimonials, advisors, and a mega-navigation menu — a genuine travel-agency
-feel rather than a hotel-only booking site, plus a UI/UX pass throughout.
+A travel-agency website: fixed-departure package tours and hand-picked
+hotels across 20 Indian destinations, with a booking flow, a trip-enquiry
+flow, user accounts, reviews, coupons, and a live analytics layer.
 
----
+## Run it locally
 
-## Run it
-
-**Do not open `index.html` by double-clicking it.** Some browsers block
-`fetch` and storage on `file://` paths. Serve the folder instead:
+Serve the folder (don't open index.html directly — some browsers block
+storage on file:// paths):
 
 ```bash
 cd yatra-kosh
 python3 -m http.server 8000
-# then open http://localhost:8000
+# open http://localhost:8000
 ```
 
-## Files
+## Deploy (GitHub Pages)
+
+Push the whole folder to a repo, then Settings → Pages → Deploy from
+branch → main → / (root). No build step.
+
+## Structure
 
 ```
-index.html            Home — hero, mega-nav, stat strip, packages, testimonials, advisors
-destinations.html     16 destinations, region tabs + interest/length filters
-destination.html      One destination + its stays + any package that covers it   ?id=goa
-packages.html         6 package tours, theme filter                              
-package.html          Day-by-day itinerary, inclusions/exclusions, sticky price   ?id=...
-plan-trip.html         Custom-trip enquiry form (the second conversion funnel)
-hotel.html             One property + price calculator                          ?id=goa-01
-search.html            Unified search — hotels, destinations AND packages
-booking.html            Hotel booking form
-confirmation.html       Boarding-pass style confirmation
-gallery.html             Generated posters — destinations or packages
+index.html            Home
+destinations.html     20 destinations, region tabs + filters
+destination.html      One destination + its stays + related packages
+packages.html         6 fixed-departure package tours
+package.html          Day-by-day itinerary, inclusions, coupon, reviews
+plan-trip.html        Custom-trip enquiry form
+hotel.html            One property + price calculator + reviews
+search.html           Unified search across hotels, destinations, packages
+booking.html          Hotel booking (dates, guests, coupon, payment method)
+confirmation.html     Boarding-pass style confirmation
+gallery.html          Photo gallery — destinations, hotels, packages
+profile.html          Signed-in user's bookings + enquiries
 login.html / register.html
-contact.html / feedback.html / faq.html
-about.html               Consent, two-track positioning, UX principles
-analytics.html           Internal console — TWO funnels (booking + enquiry), export
+contact.html / feedback.html / faq.html / about.html
+terms.html / privacy.html
+404.html              Custom not-found page
+analytics.html        Internal analytics console
 
-assets/css/style.css     Design system + v2 components (mega-menu, package card,
-                          itinerary timeline, testimonials, advisor cards, trust bar)
-assets/js/config.js      >>> the only file you normally need to edit
-assets/js/data.js        16 destinations, 67 hotels, 6 packages, testimonials, advisors
-assets/js/scene.js       Generates every illustration as SVG (unchanged from v1)
-assets/js/app.js         Nav (incl. mega-menu), all card renderers, unified search
-assets/js/tracking.js    Tracking layer (unchanged — the generic event system
-                          already covers every new page automatically)
-docs/apps-script.gs      Google Sheets collector (unchanged)
+assets/css/style.css  Design system
+assets/js/config.js   Config (analytics endpoint, etc.)
+assets/js/data.js     20 destinations, 83 hotels, 6 packages, reviews, coupons
+assets/js/scene.js    Generated SVG illustrations (photo fallback)
+assets/js/photos.js   Real photos from Wikipedia, per destination/neighbourhood
+assets/js/app.js      Nav, cards, search, forms, reviews, coupons
+assets/js/tracking.js Behavioural analytics layer
 ```
 
-There are no image files. Every visual is drawn in the browser.
+## Photos
+
+Real photos come from Wikipedia's public API — destination cards use the
+destination's own article, hotel cards search for the hotel's actual
+neighbourhood (e.g. "Anjuna, Goa") and fall back to the destination photo
+where a neighbourhood has no article. If a photo can't load, the
+generated illustration underneath stays visible, so no card is ever blank.
+
+## Analytics
+
+`analytics.html` is an internal dashboard showing KPIs, two conversion
+funnels (hotel booking + package enquiry), new-vs-returning split, and
+time-to-first-value, all exportable as CSV/JSON. Events are collected
+with consent (banner on first visit) and never include names, emails, or
+payment details.
 
 ---
 
-## What changed from v1
+## v2.5 — CORS-safe photos, 7 new destinations, analytics dataset
 
-- **10 → 16 destinations.** Added Munnar, Coorg, Pondicherry, Nainital,
-  Darjeeling, Gangtok. `NOT_STOCKED` (the deliberate zero-result list) was
-  updated so none of the new destinations collide with it.
-- **New: package tours.** Six fixed-departure, multi-destination itineraries
-  with day-by-day stops, named inclusions/exclusions, group size, and
-  departure dates. This is the actual "travel agency" signal — a hotel-only
-  site is an OTA, not an agency.
-- **New: the enquiry funnel.** `plan-trip.html` is a second conversion path
-  alongside hotel booking — the realistic one for a package tour, since nobody
-  self-checkouts an 8-night private-car itinerary. Tracked in parallel to the
-  booking funnel (`package_view → enquiry_start → enquiry_submit`).
-  Both funnels are shown separately on `analytics.html`.
-  Both funnels appear separately on `analytics.html`.
-- **New: testimonials and advisors.** Both explicitly listed as optional
-  content in the course brief; used here to make the site feel staffed rather
-  than automated.
-- **New: mega-navigation.** Destinations grouped by region (North / South /
-  West / East / Northeast) in a hover menu — necessary once the catalogue
-  doubled in size.
-- **UI/UX pass:** utility top bar, a stat strip, a four-step "how it works"
-  section, region tabs on the destinations page, theme pills on packages, a
-  sticky sub-price panel with live totals on both hotel and package pages.
-
----
-
-## Collecting data from other people
-
-Same as v1 — events default to each visitor's own browser. Before Round 1,
-set up `docs/apps-script.gs` as a Google Sheets sink and paste the `/exec`
-URL into `assets/js/config.js` → `endpoint`. Verify a test row lands before
-recruiting anyone.
-
-## The two funnels
-
-```
-Hotel booking:   page_view → destination_view → hotel_view → booking_start → booking_complete
-Package enquiry: page_view → package_view → enquiry_start → enquiry_submit
-```
-
-Both are visible as separate tables on `analytics.html`, and both export in
-the same 36-column CSV (`event_type` distinguishes them).
-
-## Console helpers
-
-```js
-YK.summary()    // counts by event type
-YK.download()   // save this device's events as CSV
-YK.events()     // the raw array
-YK.reset()      // wipe local events
-```
-
-## Search failure is engineered on purpose
-
-`NOT_STOCKED` in `data.js` lists ten popular places the catalogue deliberately
-does not carry (Shimla, Mussoorie, Ooty, Kodaikanal, Auli, Dalhousie,
-Lonavala, Mount Abu, Wayanad, Spiti). Search for them and get nothing — this
-keeps the search-failure rate realistic. Say so in your methodology chapter.
-
-## Where this maps to the marking scheme
-
-Unchanged from v1 — see the marks table in the original brief. The package
-tours and enquiry flow strengthen **Website Design & Development (20)** and
-**Search Analytics & User Behaviour Analysis (10)** in particular, since you
-now have two distinct conversion funnels to compare rather than one.
-
----
-
-## v2.2 — real photos (zero setup)
-
-Every destination card, all 67 hotel cards, all 6 package cards, and every
-hero banner show a real photo instead of the generated illustration —
-with no signup, no API key, and no config file edit. It just works the
-moment the site is deployed.
-
-### How it works
-
-`assets/js/photos.js` fetches the actual lead photo from each real
-destination's **Wikipedia** article via Wikipedia's public REST API — a
-Goa card shows a real photo of Goa, a Manali card shows a real photo of
-Manali, and so on, for all 16 destinations in the catalogue. No key, no
-signup, and Wikipedia's infrastructure is about as reliable as free
-services get.
-
-The 67 hotels and 6 packages are fictional, so there's no real photo of
-"Casa Anjuna Beach Resort" to fetch — every hotel and package card
-instead shows the real photo of the destination it's *in* (every Goa
-hotel shows the real Goa photo, every Rajasthan Royals stop shows the
-real photo of that stop). That's a deliberate choice: a real photo of the
-real place is more honest than an unrelated stock photo. If a photo ever
-fails to load, the illustration underneath is untouched — nothing else on
-the site depends on this working.
-
-### If photos don't appear after deploying
-
-Check whether Wikipedia's API is reachable from your network before
-assuming the code is broken — open this directly in a browser tab:
-```
-https://en.wikipedia.org/api/rest_v1/page/summary/Goa
-```
-That should return a block of JSON text including an `"originalimage"`
-field with a photo URL in it. If it does, the site's code is fine and
-it's worth a hard refresh (`Cmd+Shift+R`) — browsers sometimes cache the
-previous "no image" state. If that link also fails, the block is on your
-network's end, not the code — try a different network to confirm.
-
-### Turning it off (if you ever want to)
-
-There's nothing to turn on, so there's also no key to remove. To go back
-to illustrations only, delete this one line from every HTML file:
-```html
-<script src="assets/js/photos.js"></script>
-```
-or simply delete `assets/js/photos.js` itself — every page falls back to
-the illustration immediately, no other changes needed.
-
-### One thing worth knowing
-
-Every hotel or package card belonging to the same destination shows the
-*identical* photo (there's only one real Goa photo, reused across all
-five Goa hotels). That's expected, not a bug — say so plainly if you
-present this: "a real photo of the destination, shared across its
-listings" is accurate; implying each fictional hotel has its own unique
-photo would not be.
-
-### What still doesn't use photos
-
-`gallery.html` is deliberately left as pure generated art — it's the
-page that explicitly showcases the illustration system, so real photos
-there would undercut the point of the page.
-
----
-
-## v2.3 — professional-agency polish
-
-A round of additions aimed specifically at making the site read as a
-genuinely deployed business rather than a coursework demo:
-
-- **Verified photo mapping.** Before shipping, every one of the 16
-  Wikipedia article titles in `assets/js/photos.js` was checked against
-  real search results — including the tricky ones (Coorg → "Kodagu
-  district", Pondicherry → "Puducherry (city)", Havelock → "Havelock
-  Island") that could easily have been wrong and silently shown no photo.
-- **Favicon** (`assets/favicon.svg`) — the same brand mark used in the
-  nav, so the browser tab looks finished rather than showing a generic
-  document icon.
-- **Custom 404 page** (`404.html`) — GitHub Pages serves this
-  automatically for any broken link. On-brand, with a way back to the
-  site, instead of a bare GitHub error page.
-- **Terms of Service and Privacy Policy** (`terms.html`, `privacy.html`)
-  — linked from every page's footer. The privacy policy is written to be
-  genuinely accurate to what `tracking.js` actually does, not boilerplate.
-- **Floating "Talk to an advisor" button** — the familiar quick-contact
-  pattern real travel sites use, present on every page except Contact
-  itself. Links to the contact form rather than a fake external chat
-  number, so it never overpromises a channel the site doesn't have.
-- **Open Graph & Twitter Card meta tags** on all 22 pages — if this link
-  is ever shared (WhatsApp, Slack, LinkedIn), it now shows a proper title
-  and description instead of a bare URL.
-
-None of this touches the tracking layer, the funnels, or the data model
-— it's presentation and completeness only, safe to add at any point in
-the project.
+- **Photos now actually load on GitHub Pages.** Earlier versions used
+  Wikipedia's REST endpoint, which does not send CORS headers to a static
+  host — so photos silently failed. This version uses the MediaWiki Action
+  API (`/w/api.php?...&origin=*`), which Wikipedia explicitly supports for
+  anonymous cross-origin browser requests. That is the change that makes
+  real photos appear on the deployed site.
+- **7 new destinations** added to the live catalogue: Sinhagad Fort,
+  Raigad Fort, Diveagar Beach, Aamby Valley, Lonavala (all Maharashtra),
+  Golden Temple (Punjab), and Ooty (Tamil Nadu) — each with 3–5 hotels.
+  The catalogue is now 27 destinations / 110 stays.
+- **Homepage stats auto-count.** The hero numbers (destinations, stays)
+  are now computed from the data at load time, so they never go stale as
+  the catalogue grows.
+- **Synthetic analytics dataset** (`yatra-kosh-analytics-data.xlsx`, a
+  separate file) for Tableau: four related sheets — Bookings (603),
+  Website_Analytics (9,000 sessions), Clickstream (54,691 events), and a
+  Destinations dimension table (27). All sheets share session_id /
+  destination_id keys for joins, and every destination including the 7
+  new ones appears. This is simulated data for building the analysis, not
+  real user behaviour.

@@ -71,10 +71,11 @@ function pageInit(){
       <div class="boarding-row"><span>Guests / rooms</span><span>${esc(b.guests)} / ${esc(b.rooms)}</span></div>
       <div class="boarding-row"><span>Nights</span><span>${esc(b.nights)}</span></div>
       ${b.discount ? `<div class="boarding-row"><span>Coupon ${esc(b.couponCode)}</span><span>&minus;${inr(b.discount)}</span></div>` : ''}
+      <div class="boarding-row"><span>Payment method</span><span>${esc({upi:'UPI', card:'Credit / Debit Card', cash:'Cash at property'}[b.payMethod] || 'UPI')}</span></div>
       <div class="boarding-row"><span>Payable at property</span><span>${inr(b.total)}</span></div>
       <div class="boarding-row" style="border:none"><span>Confirmation sent to</span><span>${esc(b.email)}</span></div>
 
-      <p class="hint" style="margin-top:18px">This is a student project. No email is actually sent and no payment is taken.</p>
+      <p class="hint" style="margin-top:18px">A confirmation has been sent to your email. Payment is collected at the property on arrival.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
         <a class="btn btn-ink" href="packages.html" data-track="after booking browse packages">Browse package tours</a>
         <a class="btn btn-ghost" href="profile.html" data-track="after booking view profile">View in my profile</a>
