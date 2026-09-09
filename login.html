@@ -72,7 +72,7 @@ function pageInit(){
     try{ localStorage.setItem('yk_signedin', $('#email').value.trim()); }catch(err){}
     if(window.YK) YK.track('login_success', {category:'auth', label:'login'});
     $('#msg').innerHTML = '<div class="notice notice-ok" style="margin-top:16px">Signed in. Taking you to the destinations page.</div>';
-    setTimeout(()=>location.href='destinations.html', 900);
+    setTimeout(()=>{ const n=App.param('next'); location.href = n ? decodeURIComponent(n) : 'destinations.html'; }, 900);
   });
 }
 

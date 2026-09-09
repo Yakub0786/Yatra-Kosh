@@ -107,6 +107,12 @@
     if (cached !== undefined) return Promise.resolve(cached);
     if (inflight[cacheKey]) return inflight[cacheKey];
     inflight[cacheKey] = pageImage(title).then(function (url) {
+      // if the curated title somehow has no lead image, fall back to a search
+      if (url) return url;
+      return searchTitle(title + ' India').then(function (t) {
+        return t ? pageImage(t) : null;
+      });
+    }).then(function (url) {
       cacheSet(cacheKey, url);
       delete inflight[cacheKey];
       return url;

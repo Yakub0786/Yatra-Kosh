@@ -37,7 +37,7 @@
     <div class="split-side split-side--right">
       <div>
         <h1 style="font-size:clamp(1.7rem,4vw,2.4rem)">Who is travelling?</h1>
-        <p class="lede">Five fields. Nothing is charged now — you pay the property at check-in.</p>
+        <p class="lede">Nothing is charged now — you pay the property at check-in.</p>
 
         <form class="panel" id="bform" data-form="booking" novalidate style="margin-top:24px">
           <div class="form-grid">
@@ -45,11 +45,12 @@
               <input type="date" id="cin" name="cin" data-rule="required,future"><p class="field-error"></p></div>
             <div class="field"><label for="cout">Check out</label>
               <input type="date" id="cout" name="cout" data-rule="required"><p class="field-error"></p></div>
-            <div class="field"><label for="guests">Guests</label>
-              <select id="guests" name="guests"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
-            <div class="field"><label for="rooms">Rooms</label>
-              <select id="rooms" name="rooms"><option selected>1</option><option>2</option><option>3</option></select></div>
+            <div class="field"><label for="adults">Adults</label>
+              <select id="adults" name="adults"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></div>
+            <div class="field"><label for="children">Children <span class="hint">under 12</span></label>
+              <select id="children" name="children"><option selected>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
           </div>
+          <div class="notice notice-info" id="room-note" style="margin-bottom:18px"></div>
 
           <div class="field"><label for="name">Full name <span class="hint">as printed on your ID</span></label>
             <input type="text" id="name" name="name" data-rule="required" autocomplete="name"><p class="field-error"></p></div>
@@ -106,16 +107,81 @@ function pageInit(){
   const h = HOTELS.find(x => x.id === param('hotel')) || HOTELS[0];
   let discount = 0, couponCode = '';
 
-  $('#cin').value  = param('cin')  || App.plus(7);
-  $('#cout').value = param('cout') || App.plus(10);
+  // --- sign-in is required to book ---
+  if(!App.currentUser()){
+    const main = $('#main');
+    if(main){
+      const dest = encodeURIComponent('booking.html' + location.search);
+      main.innerHTML = `
+        <section class="section">
+          <div class="wrap" style="max-width:520px">
+            <div class="panel" style="text-align:center;padding:44px 28px">
+              <span class="eyebrow">One quick step</span>
+              <h1 style="font-size:clamp(1.6rem,4vw,2.2rem);margin-bottom:8px">Sign in to complete your booking</h1>
+              <p class="lede center" style="margin-inline:auto">Booking a stay needs an account — it keeps your reservation, dates and confirmation reference in one place. It takes a moment.</p>
+              <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px">
+                <a class="btn btn-primary" href="login.html?next=${dest}" data-track="booking gate sign in">Sign in</a>
+                <a class="btn btn-ghost" href="register.html?next=${dest}" data-track="booking gate register">Create account</a>
+              </div>
+              <p class="hint" style="margin-top:18px">You were booking <b>${esc(h.name)}</b>. We'll bring you right back here.</p>
+            </div>
+          </div>
+        </section>`;
+    }
+    if(window.YK) YK.track('booking_gate_shown', {category:'auth', label:h.name});
+    return;
+  }
+
+  const MAX_ADULTS_PER_ROOM = 3;
+  const todayStr = App.today();
+
+  // --- date setup with proper constraints ---
+  const cin = $('#cin'), cout = $('#cout');
+  cin.min = todayStr;                         // can't check in before today
+  cin.value  = param('cin')  || App.plus(7);
+  cout.value = param('cout') || App.plus(10);
+
+  function clampDates(changed){
+    // check-in can't be in the past
+    if(cin.value < todayStr) cin.value = todayStr;
+    // check-out must be at least one day after check-in
+    const minOut = App.plus(0); // placeholder
+    const inDate = new Date(cin.value);
+    const dayAfterIn = new Date(inDate.getTime() + 864e5).toISOString().slice(0,10);
+    cout.min = dayAfterIn;                     // browser blocks earlier dates
+    if(cout.value <= cin.value){
+      // if user just changed checkout to something invalid, or checkin passed checkout
+      cout.value = dayAfterIn;
+    }
+  }
 
   function nights(){
-    const a = new Date($('#cin').value), b = new Date($('#cout').value);
+    const a = new Date(cin.value), b = new Date(cout.value);
     return Math.max(1, Math.round((b-a)/864e5) || 1);
   }
 
+  // rooms are computed from adults (3 adults max per room; children don't count toward the cap)
+  function roomsNeeded(){
+    const adults = parseInt($('#adults').value,10);
+    return Math.max(1, Math.ceil(adults / MAX_ADULTS_PER_ROOM));
+  }
+
+  function updateRoomNote(){
+    const adults = parseInt($('#adults').value,10);
+    const children = parseInt($('#children').value,10);
+    const rooms = roomsNeeded();
+    const guestText = adults + (adults===1?' adult':' adults') +
+      (children? ' + ' + children + (children===1?' child':' children') : '');
+    $('#room-note').innerHTML =
+      `<b>${rooms} room${rooms>1?'s':''}</b> for ${guestText}` +
+      (rooms>1 ? ` — we split into ${rooms} rooms because each room holds up to ${MAX_ADULTS_PER_ROOM} adults. Children stay with you at no extra room.`
+               : ` — one room holds up to ${MAX_ADULTS_PER_ROOM} adults; children stay with you at no extra room.`);
+  }
+
   function summary(){
-    const n = nights(), r = parseInt($('#rooms').value,10);
+    const n = nights(), r = roomsNeeded();
+    const adults = parseInt($('#adults').value,10);
+    const children = parseInt($('#children').value,10);
     const sub = h.price*n*r, tax = Math.round((sub-discount)*0.12);
     const total = Math.max(0, sub - discount) + tax;
     $('#summary').innerHTML = `
@@ -123,20 +189,28 @@ function pageInit(){
       <div style="border-radius:var(--r-md);overflow:hidden;margin-bottom:14px">${Scene.make(h.scene,h.palette,h.id)}</div>
       <h3 style="margin-bottom:2px">${esc(h.name)}</h3>
       <p class="ticket-loc" style="margin-bottom:14px">${esc(h.area)} · ${esc(h.destName)}</p>
-      <div class="boarding-row"><span>${inr(h.price)} × ${n} nights × ${r} room${r>1?'s':''}</span><span>${inr(sub)}</span></div>
+      <div class="boarding-row"><span>Dates</span><span>${esc(cin.value)} → ${esc(cout.value)}</span></div>
+      <div class="boarding-row"><span>Guests</span><span>${adults} adult${adults>1?'s':''}${children?', '+children+' child'+(children>1?'ren':''):''}</span></div>
+      <div class="boarding-row"><span>${inr(h.price)} × ${n} night${n>1?'s':''} × ${r} room${r>1?'s':''}</span><span>${inr(sub)}</span></div>
       ${discount ? `<div class="boarding-row"><span>Coupon ${esc(couponCode)}</span><span>&minus;${inr(discount)}</span></div>` : ''}
       <div class="boarding-row"><span>GST (12%)</span><span>${inr(tax)}</span></div>
       <div class="boarding-row" style="border:none;font-weight:600"><span>Payable at property</span><span>${inr(total)}</span></div>`;
-    return {n, rooms:r, sub, tax, total, discount, couponCode};
+    return {n, rooms:r, adults, children, sub, tax, total, discount, couponCode};
   }
-  ['cin','cout','rooms','guests'].forEach(id => $('#'+id).addEventListener('change', summary));
-  summary();
+
+  function refresh(){ clampDates(); updateRoomNote(); summary(); }
+
+  cin.addEventListener('change', () => { clampDates('cin'); updateRoomNote(); summary(); });
+  cout.addEventListener('change', () => { clampDates('cout'); updateRoomNote(); summary(); });
+  $('#adults').addEventListener('change', refresh);
+  $('#children').addEventListener('change', refresh);
+  refresh();
 
   $('#coupon-apply').addEventListener('click', () => {
     const code = $('#coupon').value.trim();
     const msg = $('#coupon-msg');
     if(!code){ return; }
-    const sub = h.price * nights() * parseInt($('#rooms').value,10);
+    const sub = h.price * nights() * roomsNeeded();
     const res = App.applyCoupon(code, sub, 'hotel');
     msg.classList.remove('ok','err'); msg.classList.add('show');
     if(res.ok){
@@ -168,7 +242,8 @@ function pageInit(){
       ref, hotel:h.id, hotelName:h.name, area:h.area, dest:h.destName,
       scene:h.scene, palette:h.palette,
       cin:$('#cin').value, cout:$('#cout').value,
-      guests:$('#guests').value, rooms:s.rooms, nights:s.n, total:s.total,
+      adults:s.adults, children:s.children,
+      guests:(s.adults + s.children), rooms:s.rooms, nights:s.n, total:s.total,
       discount:s.discount, couponCode:s.couponCode, payMethod,
       name:$('#name').value.trim(), email:$('#email').value.trim(), phone:$('#phone').value.trim()
     };

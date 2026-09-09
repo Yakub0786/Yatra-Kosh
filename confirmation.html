@@ -68,7 +68,7 @@ function pageInit(){
       <div class="boarding-row"><span>Guest</span><span>${esc(b.name)}</span></div>
       <div class="boarding-row"><span>Check in</span><span>${esc(b.cin)} · after 2:00 PM</span></div>
       <div class="boarding-row"><span>Check out</span><span>${esc(b.cout)} · before 11:00 AM</span></div>
-      <div class="boarding-row"><span>Guests / rooms</span><span>${esc(b.guests)} / ${esc(b.rooms)}</span></div>
+      <div class="boarding-row"><span>Guests / rooms</span><span>${b.adults!==undefined ? esc(b.adults)+' adult'+(b.adults>1?'s':'')+(b.children?', '+esc(b.children)+' child'+(b.children>1?'ren':''):'') : esc(b.guests)} / ${esc(b.rooms)} room${b.rooms>1?'s':''}</span></div>
       <div class="boarding-row"><span>Nights</span><span>${esc(b.nights)}</span></div>
       ${b.discount ? `<div class="boarding-row"><span>Coupon ${esc(b.couponCode)}</span><span>&minus;${inr(b.discount)}</span></div>` : ''}
       <div class="boarding-row"><span>Payment method</span><span>${esc({upi:'UPI', card:'Credit / Debit Card', cash:'Cash at property'}[b.payMethod] || 'UPI')}</span></div>
