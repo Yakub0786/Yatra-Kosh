@@ -677,3 +677,31 @@ table.data th{ background:var(--ink); color:#fff; font-size:.7rem; font-weight:7
 .pay-option:hover{ border-color:#B6C2CF; }
 .pay-option.is-active{ border-color:var(--indigo); background:rgba(43,78,155,.06); color:var(--ink); }
 @media (max-width:480px){ .pay-option{ min-width:0; flex-direction:column; gap:4px; font-size:.78rem; padding:10px 6px; } }
+
+/* ==========================================================================
+   v2.6 additions — post-booking review modal
+   ========================================================================== */
+.modal-backdrop{
+  position:fixed; inset:0; z-index:400; background:rgba(15,30,56,.55);
+  display:flex; align-items:center; justify-content:center; padding:20px;
+  opacity:0; visibility:hidden; transition:opacity .2s ease;
+}
+.modal-backdrop.show{ opacity:1; visibility:visible; }
+.modal-card{
+  background:var(--card); border-radius:var(--r-lg); box-shadow:var(--shadow-2);
+  max-width:440px; width:100%; padding:30px 28px; text-align:center;
+  transform:translateY(12px); transition:transform .2s ease;
+}
+.modal-backdrop.show .modal-card{ transform:none; }
+.modal-card h3{ margin-bottom:6px; }
+.modal-card .muted{ font-size:.92rem; margin-bottom:18px; }
+.star-rate{ display:flex; justify-content:center; gap:6px; margin:6px 0 20px; }
+.star-rate button{
+  background:none; border:none; cursor:pointer; font-size:2.2rem; line-height:1;
+  color:var(--line); transition:color .12s ease, transform .12s ease; padding:2px;
+}
+.star-rate button:hover{ transform:scale(1.12); }
+.star-rate button.lit{ color:var(--marigold); }
+.modal-thanks{ display:none; }
+.modal-close{ position:absolute; }
+.review-actions{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }

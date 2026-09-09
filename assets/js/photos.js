@@ -141,13 +141,16 @@
 
   function attachImg(el, url) {
     if (!url || !el || !el.isConnected) return;
+    // remove any photo we placed earlier (so a later, better photo replaces it cleanly)
+    var prev = el.querySelector('img[data-yk-photo]');
     var img = document.createElement('img');
     img.src = url;
     img.alt = '';
     img.loading = 'lazy';
+    img.setAttribute('data-yk-photo', '1');
     img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
       'object-fit:cover;opacity:0;transition:opacity .35s ease;';
-    img.onload = function () { img.style.opacity = '1'; };
+    img.onload = function () { img.style.opacity = '1'; if (prev) prev.remove(); };
     img.onerror = function () { img.remove(); };
     el.style.position = el.style.position || 'relative';
     el.appendChild(img);
@@ -159,7 +162,13 @@
   }
   function fillHotelPhoto(el, area, state, fallbackDestId) {
     if (!el || !area) return;
-    getHotelPhoto(area, state, fallbackDestId).then(function (url) { attachImg(el, url); });
+    // Show the reliable destination photo first, so the card always gets a real
+    // image quickly; then try to upgrade to a neighbourhood-specific one.
+    getDestPhoto(fallbackDestId).then(function (url) { attachImg(el, url); });
+    getHotelPhoto(area, state, fallbackDestId).then(function (url) {
+      // only swap in the area photo if it's genuinely different from the dest one
+      if (url) attachImg(el, url);
+    });
   }
 
   global.Photos = {

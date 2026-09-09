@@ -65,6 +65,7 @@
           <div class="field"><label for="notes">Anything the property should know <span class="hint">optional</span></label>
             <textarea id="notes" name="notes" style="min-height:88px" placeholder="Late arrival, ground floor room, vegetarian meals&hellip;"></textarea></div>
 
+          <div id="firsttimer-banner"></div>
           <div class="field"><label for="coupon">Coupon code <span class="hint">optional</span></label>
             <div class="coupon-row">
               <input type="text" id="coupon" placeholder="e.g. WELCOME10">
@@ -206,23 +207,40 @@ function pageInit(){
   $('#children').addEventListener('change', refresh);
   refresh();
 
-  $('#coupon-apply').addEventListener('click', () => {
-    const code = $('#coupon').value.trim();
+  function applyCouponCode(code, silent){
     const msg = $('#coupon-msg');
-    if(!code){ return; }
+    if(!code){ return false; }
     const sub = h.price * nights() * roomsNeeded();
     const res = App.applyCoupon(code, sub, 'hotel');
     msg.classList.remove('ok','err'); msg.classList.add('show');
     if(res.ok){
       discount = res.discount; couponCode = res.code;
       msg.textContent = res.message; msg.classList.add('ok');
-      if(window.YK) YK.track('coupon_applied', {category:'conversion', label:res.code, value:res.discount});
+      if(window.YK && !silent) YK.track('coupon_applied', {category:'conversion', label:res.code, value:res.discount});
     } else {
       discount = 0; couponCode = '';
       msg.textContent = res.message; msg.classList.add('err');
     }
     summary();
-  });
+    return res.ok;
+  }
+
+  $('#coupon-apply').addEventListener('click', () => applyCouponCode($('#coupon').value.trim(), false));
+
+  // --- first-booking 10% discount ---
+  let priorBookings = [];
+  try{ priorBookings = JSON.parse(localStorage.getItem('yk_bookings')||'[]'); }catch(e){}
+  const isFirstTimer = priorBookings.length === 0;
+  if(isFirstTimer){
+    $('#firsttimer-banner').innerHTML =
+      `<div class="notice notice-ok" style="margin-bottom:18px">
+        <b>Welcome — your first booking gets 10% off.</b> We've applied code
+        <b>WELCOME10</b> for you. It's already in the total on the right.
+      </div>`;
+    $('#coupon').value = 'WELCOME10';
+    applyCouponCode('WELCOME10', true);   // auto-apply, silent (not a user action)
+    if(window.YK) YK.track('first_booking_discount_offered', {category:'conversion', label:'WELCOME10'});
+  }
 
   $$('input[name="paymethod"]').forEach(input => {
     input.addEventListener('change', () => {

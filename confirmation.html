@@ -86,6 +86,79 @@ function pageInit(){
 
   if(window.YK) YK.track('confirmation_view', {category:'conversion', label:b.hotelName, value:b.total});
   App.reveals();
+
+  // --- post-booking review popup ---
+  showReviewModal(b);
+}
+
+function showReviewModal(b){
+  const {$, esc} = App;
+  // don't nag: only ask once per browser
+  let asked = false;
+  try{ asked = localStorage.getItem('yk_review_asked') === '1'; }catch(e){}
+  if(asked) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'modal-backdrop';
+  wrap.innerHTML = `
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Rate your experience">
+      <div class="modal-ask">
+        <span class="eyebrow">Booking confirmed</span>
+        <h3>How was booking with us?</h3>
+        <p class="muted">Your booking for ${esc(b.hotelName)} is set. Before you go — how would you rate the site?</p>
+        <div class="star-rate" id="star-rate">
+          ${[1,2,3,4,5].map(n=>`<button type="button" data-star="${n}" aria-label="${n} star${n>1?'s':''}">★</button>`).join('')}
+        </div>
+        <div class="review-actions">
+          <button class="btn btn-ghost btn-sm" id="review-skip" data-track="review skip">Maybe later</button>
+        </div>
+      </div>
+      <div class="modal-thanks" id="modal-thanks">
+        <span class="eyebrow">Thank you</span>
+        <h3 id="thanks-head">Thanks for the feedback!</h3>
+        <p class="muted" id="thanks-msg"></p>
+        <button class="btn btn-primary btn-sm" id="review-done" data-track="review done">Done</button>
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  requestAnimationFrame(()=> wrap.classList.add('show'));
+
+  function close(){
+    wrap.classList.remove('show');
+    setTimeout(()=> wrap.remove(), 250);
+    try{ localStorage.setItem('yk_review_asked','1'); }catch(e){}
+  }
+
+  const stars = wrap.querySelectorAll('#star-rate button');
+  let chosen = 0;
+  stars.forEach(btn => {
+    const val = parseInt(btn.dataset.star,10);
+    btn.addEventListener('mouseenter', ()=> stars.forEach(s=> s.classList.toggle('lit', parseInt(s.dataset.star,10)<=val)));
+    btn.addEventListener('mouseleave', ()=> stars.forEach(s=> s.classList.toggle('lit', parseInt(s.dataset.star,10)<=chosen)));
+    btn.addEventListener('click', ()=>{
+      chosen = val;
+      stars.forEach(s=> s.classList.toggle('lit', parseInt(s.dataset.star,10)<=chosen));
+      if(window.YK) YK.track('site_rating', {category:'happiness', label:'post-booking', value:chosen});
+      // store it
+      try{
+        const rs = JSON.parse(localStorage.getItem('yk_site_ratings')||'[]');
+        rs.push({rating:chosen, when:new Date().toISOString()});
+        localStorage.setItem('yk_site_ratings', JSON.stringify(rs));
+      }catch(e){}
+      // swap to thanks view
+      wrap.querySelector('.modal-ask').style.display='none';
+      const t = wrap.querySelector('#modal-thanks'); t.style.display='block';
+      wrap.querySelector('#thanks-msg').textContent = chosen>=4
+        ? 'So glad you enjoyed it. See you on the next trip!'
+        : (chosen===3 ? 'Thanks — we\u2019ll keep working to make it better.'
+                      : 'Sorry it fell short. Your rating helps us fix what\u2019s not working.');
+      try{ localStorage.setItem('yk_review_asked','1'); }catch(e){}
+    });
+  });
+
+  wrap.querySelector('#review-skip').addEventListener('click', close);
+  wrap.querySelector('#review-done').addEventListener('click', close);
+  wrap.addEventListener('click', e => { if(e.target===wrap) close(); });
 }
 
 </script>
