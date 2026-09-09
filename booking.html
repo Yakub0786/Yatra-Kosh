@@ -50,6 +50,15 @@
             <div class="field"><label for="children">Children <span class="hint">under 12</span></label>
               <select id="children" name="children"><option selected>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
           </div>
+          <div class="field">
+            <label>Room type</label>
+            <div class="pay-options" id="room-type-options">
+              <label class="pay-option is-active"><input type="radio" name="roomtype" value="standard" checked><span>Standard</span></label>
+              <label class="pay-option"><input type="radio" name="roomtype" value="deluxe"><span>Deluxe</span></label>
+              <label class="pay-option"><input type="radio" name="roomtype" value="suite"><span>Suite</span></label>
+            </div>
+            <p class="hint" id="roomtype-hint" style="margin-top:8px"></p>
+          </div>
           <div class="notice notice-info" id="room-note" style="margin-bottom:18px"></div>
 
           <div class="field"><label for="name">Full name <span class="hint">as printed on your ID</span></label>
@@ -136,6 +145,18 @@ function pageInit(){
   const MAX_ADULTS_PER_ROOM = 3;
   const todayStr = App.today();
 
+  // room types: label + price multiplier + short description
+  const ROOM_TYPES = {
+    standard: { label:'Standard', mult:1.0,  desc:'Comfortable double room with the essentials.' },
+    deluxe:   { label:'Deluxe',   mult:1.35, desc:'More space, a better view, and premium bedding.' },
+    suite:    { label:'Suite',    mult:1.8,  desc:'Separate living area, top-floor view, the works.' }
+  };
+  function roomType(){
+    const el = $$('input[name="roomtype"]').find(i => i.checked);
+    return (el && el.value) || 'standard';
+  }
+  function roomRate(){ return Math.round(h.price * ROOM_TYPES[roomType()].mult); }
+
   // --- date setup with proper constraints ---
   const cin = $('#cin'), cout = $('#cout');
   cin.min = todayStr;                         // can't check in before today
@@ -143,17 +164,11 @@ function pageInit(){
   cout.value = param('cout') || App.plus(10);
 
   function clampDates(changed){
-    // check-in can't be in the past
     if(cin.value < todayStr) cin.value = todayStr;
-    // check-out must be at least one day after check-in
-    const minOut = App.plus(0); // placeholder
     const inDate = new Date(cin.value);
     const dayAfterIn = new Date(inDate.getTime() + 864e5).toISOString().slice(0,10);
-    cout.min = dayAfterIn;                     // browser blocks earlier dates
-    if(cout.value <= cin.value){
-      // if user just changed checkout to something invalid, or checkin passed checkout
-      cout.value = dayAfterIn;
-    }
+    cout.min = dayAfterIn;
+    if(cout.value <= cin.value){ cout.value = dayAfterIn; }
   }
 
   function nights(){
@@ -161,10 +176,15 @@ function pageInit(){
     return Math.max(1, Math.round((b-a)/864e5) || 1);
   }
 
-  // rooms are computed from adults (3 adults max per room; children don't count toward the cap)
   function roomsNeeded(){
     const adults = parseInt($('#adults').value,10);
     return Math.max(1, Math.ceil(adults / MAX_ADULTS_PER_ROOM));
+  }
+
+  function updateRoomTypeHint(){
+    const t = ROOM_TYPES[roomType()];
+    const rate = roomRate();
+    $('#roomtype-hint').innerHTML = `${esc(t.desc)} <b>${inr(rate)}/night</b>`;
   }
 
   function updateRoomNote(){
@@ -174,7 +194,7 @@ function pageInit(){
     const guestText = adults + (adults===1?' adult':' adults') +
       (children? ' + ' + children + (children===1?' child':' children') : '');
     $('#room-note').innerHTML =
-      `<b>${rooms} room${rooms>1?'s':''}</b> for ${guestText}` +
+      `<b>${rooms} ${ROOM_TYPES[roomType()].label} room${rooms>1?'s':''}</b> for ${guestText}` +
       (rooms>1 ? ` — we split into ${rooms} rooms because each room holds up to ${MAX_ADULTS_PER_ROOM} adults. Children stay with you at no extra room.`
                : ` — one room holds up to ${MAX_ADULTS_PER_ROOM} adults; children stay with you at no extra room.`);
   }
@@ -183,7 +203,9 @@ function pageInit(){
     const n = nights(), r = roomsNeeded();
     const adults = parseInt($('#adults').value,10);
     const children = parseInt($('#children').value,10);
-    const sub = h.price*n*r, tax = Math.round((sub-discount)*0.12);
+    const rate = roomRate();
+    const rtLabel = ROOM_TYPES[roomType()].label;
+    const sub = rate*n*r, tax = Math.round((sub-discount)*0.12);
     const total = Math.max(0, sub - discount) + tax;
     $('#summary').innerHTML = `
       <span class="eyebrow">Your stay</span>
@@ -191,26 +213,35 @@ function pageInit(){
       <h3 style="margin-bottom:2px">${esc(h.name)}</h3>
       <p class="ticket-loc" style="margin-bottom:14px">${esc(h.area)} · ${esc(h.destName)}</p>
       <div class="boarding-row"><span>Dates</span><span>${esc(cin.value)} → ${esc(cout.value)}</span></div>
+      <div class="boarding-row"><span>Room type</span><span>${rtLabel}</span></div>
       <div class="boarding-row"><span>Guests</span><span>${adults} adult${adults>1?'s':''}${children?', '+children+' child'+(children>1?'ren':''):''}</span></div>
-      <div class="boarding-row"><span>${inr(h.price)} × ${n} night${n>1?'s':''} × ${r} room${r>1?'s':''}</span><span>${inr(sub)}</span></div>
+      <div class="boarding-row"><span>${inr(rate)} × ${n} night${n>1?'s':''} × ${r} room${r>1?'s':''}</span><span>${inr(sub)}</span></div>
       ${discount ? `<div class="boarding-row"><span>Coupon ${esc(couponCode)}</span><span>&minus;${inr(discount)}</span></div>` : ''}
       <div class="boarding-row"><span>GST (12%)</span><span>${inr(tax)}</span></div>
       <div class="boarding-row" style="border:none;font-weight:600"><span>Payable at property</span><span>${inr(total)}</span></div>`;
-    return {n, rooms:r, adults, children, sub, tax, total, discount, couponCode};
+    return {n, rooms:r, adults, children, sub, tax, total, discount, couponCode, roomType:roomType(), roomTypeLabel:rtLabel, roomRate:rate};
   }
 
-  function refresh(){ clampDates(); updateRoomNote(); summary(); }
+  function refresh(){ clampDates(); updateRoomTypeHint(); updateRoomNote(); summary(); }
 
   cin.addEventListener('change', () => { clampDates('cin'); updateRoomNote(); summary(); });
   cout.addEventListener('change', () => { clampDates('cout'); updateRoomNote(); summary(); });
   $('#adults').addEventListener('change', refresh);
   $('#children').addEventListener('change', refresh);
+  $$('input[name="roomtype"]').forEach(input => {
+    input.addEventListener('change', () => {
+      $$('#room-type-options .pay-option').forEach(l => l.classList.remove('is-active'));
+      input.closest('.pay-option').classList.add('is-active');
+      if(window.YK) YK.track('room_type_selected', {category:'conversion', label:input.value});
+      refresh();
+    });
+  });
   refresh();
 
   function applyCouponCode(code, silent){
     const msg = $('#coupon-msg');
     if(!code){ return false; }
-    const sub = h.price * nights() * roomsNeeded();
+    const sub = roomRate() * nights() * roomsNeeded();
     const res = App.applyCoupon(code, sub, 'hotel');
     msg.classList.remove('ok','err'); msg.classList.add('show');
     if(res.ok){
@@ -261,7 +292,7 @@ function pageInit(){
       scene:h.scene, palette:h.palette,
       cin:$('#cin').value, cout:$('#cout').value,
       adults:s.adults, children:s.children,
-      guests:(s.adults + s.children), rooms:s.rooms, nights:s.n, total:s.total,
+      guests:(s.adults + s.children), rooms:s.rooms, roomType:s.roomTypeLabel, roomRate:s.roomRate, nights:s.n, total:s.total,
       discount:s.discount, couponCode:s.couponCode, payMethod,
       name:$('#name').value.trim(), email:$('#email').value.trim(), phone:$('#phone').value.trim()
     };

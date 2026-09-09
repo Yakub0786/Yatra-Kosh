@@ -126,7 +126,7 @@ function pageInit(){
   $('#rv-form-anchor').innerHTML = App.reviewFormHtml();
   App.wireReviewForm(h.id, drawReviews);
 
-  if(window.Photos) Photos.fillHotelPhoto($('#hotel-hero-art'), h.area, h.state, h.dest);
+  if(window.Photos) Photos.fillHotelPhoto($('#hotel-hero-art'), h.dest, h.id);
   if(window.YK) YK.track('hotel_view', {category:'catalogue', label:h.name, value:h.price});
   App.reveals();
 }

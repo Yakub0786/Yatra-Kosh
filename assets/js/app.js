@@ -170,7 +170,7 @@
     const am = h.amenities.slice(0, 4).map(a => `<li>${esc(AMENITY_LABELS[a] || a)}</li>`).join('');
     return `
 <article class="ticket reveal" data-hover="hotel ${h.name}">
-  <div class="ticket-art" data-photo-area="${esc(h.area)}" data-photo-state="${esc(h.state)}" data-photo-fallback="${h.dest}">${Scene.make(h.scene, h.palette, h.id)}</div>
+  <div class="ticket-art" data-photo-dest="${h.dest}" data-photo-hotel="${h.id}">${Scene.make(h.scene, h.palette, h.id)}</div>
   <div class="ticket-main">
     <p class="ticket-loc">${esc(h.area)} · ${esc(h.destName)}</p>
     <h3>${esc(h.name)}</h3>
@@ -400,19 +400,20 @@
   /* ---------- real photos (progressive enhancement over the illustrations) ---------- */
   function fillPhotos(root) {
     if (!window.Photos || !Photos.enabled) return;
+    $$('[data-photo-hotel]', root || document).forEach(el => {
+      if (el.dataset.photoFilled) return;
+      const destId = el.dataset.photoDest, hotelId = el.dataset.photoHotel;
+      if (!destId) return;
+      el.dataset.photoFilled = '1';
+      Photos.fillHotelPhoto(el, destId, hotelId);
+    });
     $$('[data-photo-dest]', root || document).forEach(el => {
       if (el.dataset.photoFilled) return;
+      if (el.hasAttribute('data-photo-hotel')) return; // handled above
       const destId = el.dataset.photoDest;
       if (!destId) return;
       el.dataset.photoFilled = '1';
       Photos.fillPhoto(el, destId);
-    });
-    $$('[data-photo-area]', root || document).forEach(el => {
-      if (el.dataset.photoFilled) return;
-      const area = el.dataset.photoArea, state = el.dataset.photoState, fallback = el.dataset.photoFallback;
-      if (!area) return;
-      el.dataset.photoFilled = '1';
-      Photos.fillHotelPhoto(el, area, state, fallback);
     });
   }
   window.App.fillPhotos = fillPhotos;
